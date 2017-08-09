@@ -9,21 +9,21 @@
     "prepublish": "browserify demo.js -t glslifyify > bundle.js"
   },
   "dependencies": {
-    "gl-vao": "0.0.3",
-    "gl-shader": "0.0.6",
-    "gl-now": "0.0.4",
-    "gl-fbo": "~0.1.1",
-    "gl-buffer": "~0.1.1",
-    "gl-texture2d": "~0.1.5",
+    "gl-buffer": "^2.1.2",
+    "gl-fbo": "^2.0.5",
+    "gl-now": "1.4.0",
+    "gl-shader": "4.2.1",
+    "gl-texture2d": "^2.1.0",
+    "gl-vao": "1.3.0",
     "glsl-noise": "0.0.0",
-    "zeros": "0.0.0",
-    "ndarray-fill": "~0.1.0",
-    "ndarray": "~1.0.9"
+    "ndarray": "^1.0.18",
+    "ndarray-fill": "^1.0.2",
+    "zeros": "^1.0.0"
   },
   "devDependencies": {
     "glslifyify": "~0.1.1",
-    "beefy": "~0.7.1",
-    "browserify": "~3.14.1"
+    "beefy": "~2.1.8",
+    "browserify": "~14.4.0"
   },
   "author": "Hugh Kennedy <hughskennedy@gmail.com> (http://hughsk.io/)",
   "license": "MIT",
