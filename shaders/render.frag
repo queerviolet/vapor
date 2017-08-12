@@ -4,6 +4,7 @@ precision mediump float;
 
 uniform sampler2D uTexture;
 varying vec2 vIndex;
+const vec3 color = vec3(1, 0, 1);
 
 void main() {
   gl_FragColor = vec4(
@@ -12,4 +13,8 @@ void main() {
     , 1.0 - vIndex.y
     , 1.0
   ) * 0.165;
+  // gl_FragColor = vec4(
+  //   color,
+  //   sin(vIndex.x * 10.0)
+  // );
 }

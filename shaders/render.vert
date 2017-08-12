@@ -10,7 +10,8 @@ uniform sampler2D uState;
 varying vec2 vIndex;
 
 void main() {
+  vec4 sample = texture2D(uState, aIndex);
   vIndex = aIndex;
   gl_PointSize = 1.0;
-  gl_Position = vec4(texture2D(uState, aIndex).xy / uScreen, 1.0, 1.0);
+  gl_Position = vec4(sample.xy / uScreen, 1.0, 1.0);
 }

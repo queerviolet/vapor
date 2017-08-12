@@ -14,7 +14,7 @@ var shaders
 
 var t = 0
 var shell = createShell({
-  clearColor: [0,0,0,1]
+  clearColor: [1,1,1,1]
 })
 
 shell.on('gl-render', render)
@@ -30,8 +30,9 @@ function init() {
 
   var initialState = ndarray(new Float32Array(512 * 512 * 4), [512, 512, 4])
   fill(initialState, function(x, y, ch) {
-    if (ch > 2) return 1
-    return (Math.random() - 0.5) * 800.6125
+    // if (ch > 2) return 1
+    // return (Math.random() - 0.5) * 800.6125    
+    return 0
   })
 
   nextState.color.setPixels(initialState)
@@ -49,10 +50,10 @@ function init() {
   var index = new Float32Array(512 * 512 * 2)
   var i = 0
   for (var x = 0; x < 512; x++)
-  for (var y = 0; y < 512; y++) {
-    index[i++] = x / 512
-    index[i++] = y / 512
-  }
+    for (var y = 0; y < 512; y++) {
+      index[i++] = x / 512
+      index[i++] = y / 512
+    }
 
   particleVertices = createVAO(gl, null, [{
       type: gl.FLOAT
@@ -62,10 +63,11 @@ function init() {
 }
 
 var cleared = false
-
+window.shell = shell
 function render() {
-  var gl = shell.gl
 
+
+  var gl = shell.gl
   // Switch to clean FBO for GPGPU
   // particle motion
   nextState.bind()
@@ -76,6 +78,13 @@ function render() {
   shader.bind()
   shader.uniforms.uState = prevState.color.bind(0)
   shader.uniforms.uTime = t++
+  const {mouseX, mouseY, width, height} = shell  
+  shader.uniforms.uTarget = [
+    width * (-1 + 2 * (mouseX / width)),
+    height * (1 - 2 * (mouseY / height))
+  ]
+
+  shader.uniforms.uGravity = shell.wasDown('mouse-1') ? -1.0 : 0.0
   screenVertices.bind()
   gl.drawArrays(gl.TRIANGLES, 0, 6)
 
@@ -93,8 +102,10 @@ function render() {
 
   // Additive blending!
   gl.enable(gl.BLEND)
-  gl.blendFunc(gl.ONE, gl.ONE)
+  gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA)
+  // gl.blendFunc(gl.ONE, gl.ONE)
   gl.drawArrays(gl.POINTS, 0, 512 * 512)
+  // gl.drawArrays(gl.POINTS, 0, 512 * 512)
   gl.disable(gl.BLEND)
 
   // Switch
