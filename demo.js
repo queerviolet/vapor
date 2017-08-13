@@ -191,7 +191,7 @@ function render() {
   prevState = nextState
   nextState = tmp
 
-  pip([prevState.color[0], nextState.color[0], behaviorFbo.color[0]])
+  pip([prevState.color[0], nextState.color[0]])
 
   --renderLock
 }
