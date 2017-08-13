@@ -6,9 +6,8 @@ precision mediump float;
 #pragma glslify: simplex = require(../node_modules/glsl-noise/simplex/3d)
 
 uniform sampler2D uState;
+uniform sampler2D uTarget;
 uniform float uTime;
-uniform vec2 uTarget;
-uniform bool uFollowFragCoord;
 uniform float uGravity;
 uniform float uTurbulence;
 
@@ -17,6 +16,8 @@ const float SPEED = 16.0;
 
 void main() {
   vec4 sampled = texture2D(uState, gl_FragCoord.xy / vec2(512.0)).rgba;
+  vec2 target = texture2D(uTarget, gl_FragCoord.xy / vec2(512.0)).xy;
+                // vec2(0.0, texture2D(uTarget, vec2(0.0, 0.0)).a);
   vec2 nextPosition = sampled.xy;
   vec2 lastVelocity = sampled.zw;
 
@@ -39,15 +40,11 @@ void main() {
   // );
   
   // Momentum:
-  nextPosition += lastVelocity * 0.3;
+  nextPosition += lastVelocity * 0.0;
   
   // The spring connects us to the target:
   vec2 goal;
-  if (uFollowFragCoord) {
-    goal = uTarget + vec2(gl_FragCoord.x, 10.0 * sin(gl_FragCoord.x / 10.0)) - nextPosition;
-  } else {
-    goal = uTarget - nextPosition;
-  }
+  goal = target - nextPosition;
   
   // A force that falls off with the inverse square of distance:  
   float dist = length(goal) / 8.0;

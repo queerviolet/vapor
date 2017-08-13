@@ -4,6 +4,7 @@ var createBuffer = require('gl-buffer')
 var createShell  = require('gl-now')
 var createFBO    = require('gl-fbo')
 var createVAO    = require('gl-vao')
+var createTexture = require('gl-texture2d')
 
 var ndarray = require('ndarray')
 var fill    = require('ndarray-fill')
@@ -12,11 +13,12 @@ let screenVertices
 var particleVertices
 var nextState
 var prevState
+var targetTex
+var targetBuf
 var shaders
 
-let target = {x: window.innerWidth / 2, y: window.innerHeight / 2}
+// let target = {x: window.innerWidth / 2, y: window.innerHeight / 2}
 let gravity = 0
-let uFollowFragCoord = false
 let uTurbulence = 16.0
 
 var t = 0
@@ -28,11 +30,13 @@ shell.on('gl-init', init)
 shell.on('gl-render', render)
 
 module.exports = {
-  chase: (x, y) => target = {x, y},
+  chase: (x, y) => {
+  },
   gravity: g => gravity = g,
-  shape: shape => uFollowFragCoord = shape === 'plane',
   turbulence: turb => uTurbulence = turb
 }
+
+window.shell = shell
 
 function init() {
   // Set ourselves in the background
@@ -45,7 +49,24 @@ function init() {
   shaders = require('./shaders')(gl)
 
   nextState = createFBO(gl, 512, 512, { 'float': true })
-  prevState = createFBO(gl, 512, 512, { 'float': true })
+  prevState = createFBO(gl, 512, 512, { 'float': true })  
+
+  console.log(gl.getSupportedExtensions)
+  console.log('OES_texture_float:', gl.getExtension('OES_texture_float'))
+  targetBuf = ndarray(new Float32Array(512 * 512 * 4), [512, 512, 4])
+  targetTex = createTexture(gl, [512, 512], gl.RGBA, gl.FLOAT)
+
+  // Initialize target buf
+  for (var x = 0; x < 512; x++)
+    for (var y = 0; y < 512; y++) {
+      targetBuf[i++] = 200 // x / 512
+      targetBuf[i++] = 200 // y / 512
+      i++; i++
+    }
+  
+  targetTex.setPixels(targetBuf)
+
+  
 
   var initialState = ndarray(new Float32Array(512 * 512 * 4), [512, 512, 4])
   fill(initialState, function(x, y, ch) {
@@ -84,7 +105,11 @@ function init() {
 var cleared = false
 window.shell = shell
 
+let renderLock = 0
 function render() {
+  if (++renderLock == 5)
+    return console.error(`Too many failures, rendering suppressed.`)
+  if (renderLock > 5) return
   var gl = shell.gl
   // Switch to clean FBO for GPGPU
   // particle motion
@@ -96,13 +121,8 @@ function render() {
   shader.bind()
   shader.uniforms.uState = prevState.color[0].bind(0)
   shader.uniforms.uTime = t++
-  const {mouseX, mouseY, width, height} = shell  
-  shader.uniforms.uTarget = [
-    width * (-1 + 2 * (target.x / width)),
-    height * (1 - 2 * (target.y / height))
-  ]
+  shader.uniforms.uTarget = targetTex.bind()
 
-  shader.uniforms.uFollowFragCoord = uFollowFragCoord
   shader.uniforms.uTurbulence = uTurbulence
   shader.uniforms.uGravity = gravity
 
@@ -133,4 +153,6 @@ function render() {
   var tmp = prevState
   prevState = nextState
   nextState = tmp
+
+  --renderLock
 }

@@ -1,5 +1,6 @@
 import React from 'react'
 import {render} from 'react-dom'
+import {AppContainer} from 'react-hot-loader'
 
 import particles from './demo'
 import Blast from './talk/blast.kubo'
@@ -31,10 +32,9 @@ function update() {
       })
       .sort(asc)[0] || {}
   if (target) {
-    particles.chase(...target)
-    particles.shape(el.dataset.shape)
-    if ('turbulence' in el.dataset) {
-      particles.turbulence(+el.dataset.turbulence)
+    particles.chase(...target)    
+    const t = +el.dataset.turbulence; if (t) {
+      particles.turbulence(t)
     } else {
       particles.turbulence(16)
     }
@@ -43,10 +43,13 @@ function update() {
 
 const asc = ({distance: x}, {distance: y}) => x - y
 
-
-
 const App = ({children}) => <div>{children}</div>
 
 console.log(Blast.mmm)
 
-render(<App><Blast /></App>, main)
+render(
+  <AppContainer>
+    <App>
+      <Blast />
+    </App>
+  </AppContainer>, main)

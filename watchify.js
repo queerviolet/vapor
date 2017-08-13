@@ -22,6 +22,8 @@ b.on('update', bundle);
 bundle();
 
 function bundle() {
-  b.bundle().pipe(fs.createWriteStream('bundle.js'));
+  console.log('compiling bundle.js')
+  b.bundle().pipe(fs.createWriteStream('bundle.js'))
+    .on('finish', () => console.log('wrote bundle.js'))
 }
 
