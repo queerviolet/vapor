@@ -8,7 +8,9 @@ precision mediump float;
 uniform sampler2D uState;
 uniform float uTime;
 uniform vec2 uTarget;
+uniform bool uFollowFragCoord;
 uniform float uGravity;
+uniform float uTurbulence;
 
 const vec3 OFFSET = vec3(2399.24849823098, 3299.9028381, 389.09338327);
 const float SPEED = 16.0;
@@ -24,7 +26,7 @@ void main() {
   nextPosition += vec2(
       simplex(vec3(nextPosition * 0.005, 9280.03992092039 + t + gl_FragCoord.x / 110.0) + OFFSET)
     , simplex(vec3(nextPosition * 0.005, 3870.73392092039 - t - gl_FragCoord.y / 110.0) + OFFSET)
-  ) * SPEED;
+  ) * uTurbulence;
 
   // Circular current:
   //  
@@ -40,7 +42,12 @@ void main() {
   nextPosition += lastVelocity * 0.3;
   
   // The spring connects us to the target:
-  vec2 goal = uTarget - nextPosition;
+  vec2 goal;
+  if (uFollowFragCoord) {
+    goal = uTarget + vec2(gl_FragCoord.x, 10.0 * sin(gl_FragCoord.x / 10.0)) - nextPosition;
+  } else {
+    goal = uTarget - nextPosition;
+  }
   
   // A force that falls off with the inverse square of distance:  
   float dist = length(goal) / 8.0;
@@ -62,4 +69,5 @@ void main() {
   // vec2 velocity = nextPosition - sampled.xy;
   vec2 velocity = springForce + attraction;
   gl_FragColor = vec4(vec3(nextPosition, velocity.x), velocity.y);
+  // gl_FragColor = vec4(gl_FragCoord.xy, 1.0, 1.0);
 }

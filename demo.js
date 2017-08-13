@@ -16,6 +16,8 @@ var shaders
 
 let target = {x: window.innerWidth / 2, y: window.innerHeight / 2}
 let gravity = 0
+let uFollowFragCoord = false
+let uTurbulence = 16.0
 
 var t = 0
 var shell = createShell({
@@ -27,7 +29,9 @@ shell.on('gl-render', render)
 
 module.exports = {
   chase: (x, y) => target = {x, y},
-  gravity: g => gravity = g
+  gravity: g => gravity = g,
+  shape: shape => uFollowFragCoord = shape === 'plane',
+  turbulence: turb => uTurbulence = turb
 }
 
 function init() {
@@ -98,7 +102,10 @@ function render() {
     height * (1 - 2 * (target.y / height))
   ]
 
+  shader.uniforms.uFollowFragCoord = uFollowFragCoord
+  shader.uniforms.uTurbulence = uTurbulence
   shader.uniforms.uGravity = gravity
+
   screenVertices.bind()
   gl.drawArrays(gl.TRIANGLES, 0, 6)
 

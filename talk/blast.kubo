@@ -33,7 +33,9 @@
 ## WebGL  
           @[div]
           @  className `particle-target`
-          @  style {width: '100px', height: '200px', border: 'thin solid black', position: 'relative', left: '50%'}
+          @  data-shape `plane`
+          @  data-turbulence 0
+          @  style {width: '100px', height: '200px', position: 'relative', left: '50%'}
   - High level interface to low level hardware
   - Your CPU:
     - A few (powerful) cores

@@ -19,7 +19,7 @@ function update() {
   const centerX = window.innerWidth / 2
       , centerY = window.innerHeight / 2
   
-  const target =
+  const {target, el} =
     Array.from(document.querySelectorAll('.particle-target'))
       .map(el => {
         const {top, left, width, height} = el.getBoundingClientRect()
@@ -27,11 +27,17 @@ function update() {
             , cy = top + height / 2
             , dx = cx - centerX
             , dy = cy - centerY
-        return {distance: dy * dy, target: [cx, cy]}
+        return {el, distance: dy * dy, target: [cx, cy]}
       })
-      .sort(asc)[0]
+      .sort(asc)[0] || {}
   if (target) {
-    particles.chase(...target.target)
+    particles.chase(...target)
+    particles.shape(el.dataset.shape)
+    if ('turbulence' in el.dataset) {
+      particles.turbulence(+el.dataset.turbulence)
+    } else {
+      particles.turbulence(16)
+    }
   }
 }
 
