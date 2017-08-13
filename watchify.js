@@ -1,5 +1,6 @@
 const browserify = require('browserify')
     , watchify = require('watchify')
+    , livereload = require('browserify-livereload')
     , errorify = require('errorify')
     , fs = require('fs')
 
@@ -11,9 +12,16 @@ const b = browserify(__dirname + '/index.js', {
   plugin: [watchify, errorify],
 })
 
+b.plugin(livereload, {
+  host: 'localhost',
+  port: 1337,
+  outfile: __dirname + '/bundle.js'
+})
+
 b.on('update', bundle);
 bundle();
 
 function bundle() {
   b.bundle().pipe(fs.createWriteStream('bundle.js'));
 }
+

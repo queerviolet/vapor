@@ -37,7 +37,7 @@ void main() {
   // );
   
   // Momentum:
-  nextPosition += lastVelocity * 0.9;
+  nextPosition += lastVelocity * 0.3;
   
   // The spring connects us to the target:
   vec2 goal = uTarget - nextPosition;
@@ -51,7 +51,7 @@ void main() {
   // nextPosition = uTarget;
 
   // An attractive spring force:
-  vec2 springForce = 0.008 * goal;
+  vec2 springForce = 0.05 * goal;
   nextPosition += springForce;
   
   // "Gravity", sticking them all together.

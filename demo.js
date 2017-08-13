@@ -14,17 +14,28 @@ var nextState
 var prevState
 var shaders
 
+let target = {x: window.innerWidth / 2, y: window.innerHeight / 2}
+let gravity = 0
+
 var t = 0
 var shell = createShell({
-  clearColor: [1,1,1,1]
+  clearColor: [1,1,1,1],
 })
 
 shell.on('gl-init', init)
 shell.on('gl-render', render)
 
-module.exports = shell
+module.exports = {
+  chase: (x, y) => target = {x, y},
+  gravity: g => gravity = g
+}
 
 function init() {
+  // Set ourselves in the background
+  shell.element.style.position = 'fixed'
+  shell.element.style.zIndex = -10000
+  document.body.style.overflow = 'auto'
+
   var gl = shell.gl
 
   shaders = require('./shaders')(gl)
@@ -83,11 +94,11 @@ function render() {
   shader.uniforms.uTime = t++
   const {mouseX, mouseY, width, height} = shell  
   shader.uniforms.uTarget = [
-    width * (-1 + 2 * (mouseX / width)),
-    height * (1 - 2 * (mouseY / height))
+    width * (-1 + 2 * (target.x / width)),
+    height * (1 - 2 * (target.y / height))
   ]
 
-  shader.uniforms.uGravity = shell.wasDown('mouse-1') ? -1.0 : 0.0
+  shader.uniforms.uGravity = gravity
   screenVertices.bind()
   gl.drawArrays(gl.TRIANGLES, 0, 6)
 

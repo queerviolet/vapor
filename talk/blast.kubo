@@ -27,9 +27,13 @@
       - introspectable
       - editable
     - Syntax: JSX
+    - foo
     - Implementation: Reconciler
 
-## WebGL
+## WebGL  
+          @[div]
+          @  className `particle-target`
+          @  style {width: '100px', height: '200px', border: 'thin solid black', position: 'relative', left: '50%'}
   - High level interface to low level hardware
   - Your CPU:
     - A few (powerful) cores
@@ -51,21 +55,29 @@
       result.
   - Writing WebGL:
 
-    @[Code] vertex
-    void main() {
-      gl_Position = projectionMatrix * vec4(position, 1.0);
-    }
+      @[div]
+      @  className `particle-target`
+      @  style {width: '100px', height: '100px', marginLeft: 'auto'}
 
-    @[Code] fragment
-    void main() {
-      gl_FragColor = vec4(1, 1, 1, 1);
-    }
+      @[Code] vertex
+      void main() {
+        gl_Position = projectionMatrix * vec4(position, 1.0);
+      }
+
+      @[Code] fragment
+      void main() {
+        gl_FragColor = vec4(1, 1, 1, 1);
+      }
 
     Two shaders. This draws the geometry in flat white.
   
   - Example of drawing some points.
   - Example of drawing a *lot* of points.
   - Now we make them move.
+
+    @[div]
+    @  className `particle-target`
+    @  style {width: '100px', height: '250px', margin: 'auto'}
 
 
 ## Case study: kubo (20 mins)
