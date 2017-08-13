@@ -14,8 +14,7 @@ let screenVertices
 var particleVertices
 var nextState
 var prevState
-var targetTex
-var targetBuf
+let behaviorFbo, behaviorNd
 var shaders
 
 // let target = {x: window.innerWidth / 2, y: window.innerHeight / 2}
@@ -32,22 +31,27 @@ shell.on('gl-render', render)
 
 module.exports = {chase, gravity, turbulence}
 
+
 let chaseCol = 0
 function chase(x, y, turbulence=8) {
+  if (!behaviorNd) return
+  // nextState.color[0].setPixels
+
+  // globalBehavior = {target: [x, y], turbulence}
   const {width, height} = shell
       , pX = width * (-1 + 2 * (x / width))
       , pY = height * (1 - 2 * (y / height))
-      , col = targetBuf.pick(chaseCol = (chaseCol + 1) % 512)
+      , col = behaviorNd.pick(chaseCol = (chaseCol + 1) % 512)
 
   fill(col, (y, ch) => {
     switch (ch) {
       case 0: return pX
       case 1: return pY
-      case 2: return 8//turbulence      
+      case 2: return turbulence      
     }
     return 0
   })
-  targetTex.setPixels(targetBuf)
+  behaviorFbo.color[0].setPixels(behaviorNd)
 }
 
 function gravity(g) {
@@ -71,20 +75,30 @@ function init() {
   shaders = require('./shaders')(gl)
 
   nextState = createFBO(gl, 512, 512, { 'float': true })
-  prevState = createFBO(gl, 512, 512, { 'float': true })  
-
-  console.log(gl.getSupportedExtensions)
-  console.log('OES_texture_float:', gl.getExtension('OES_texture_float'))
-  targetBuf = ndarray(new Float32Array(512 * 512 * 4), [512, 512, 4])
-  targetTex = createTexture(gl, [512, 512], gl.RGBA, gl.FLOAT)
-  fill(targetBuf, (x, y, ch) => {
+  prevState = createFBO(gl, 512, 512, { 'float': true })
+  behaviorFbo = createFBO(gl, 512, 512, { 'float': true })
+  behaviorNd = ndarray(new Float32Array(512 * 512 * 4), [512, 512, 4])
+  fill(behaviorNd, (x, y, ch) => {
     switch (ch) {
-      case 0: return 0   // target.x
-      case 1: return 0   // target.y
-      case 2: return 12  // turbulence
+      case 0: return 0
+      case 1: return 0
+      case 2: return 2//turbulence      
     }
     return 0
   })
+  behaviorFbo.color[0].setPixels(behaviorNd)
+  // console.log(gl.getSupportedExtensions)
+  // console.log('OES_texture_float:', gl.getExtension('OES_texture_float'))
+  // targetBuf = ndarray(new Float32Array(512 * 512 * 4), [512, 512, 4])
+  // targetTex = createTexture(gl, [512, 512], gl.RGBA, gl.FLOAT)
+  // fill(targetBuf, (x, y, ch) => {
+  //   switch (ch) {
+  //     case 0: return 0   // target.x
+  //     case 1: return 0   // target.y
+  //     case 2: return 12  // turbulence
+  //   }
+  //   return 0
+  // })
   
   var initialState = ndarray(new Float32Array(512 * 512 * 4), [512, 512, 4])
   fill(initialState, function(x, y, ch) {
@@ -138,7 +152,7 @@ function render() {
   var shader = shaders.logic
   shader.bind()
   shader.uniforms.uState = prevState.color[0].bind(0)
-  shader.uniforms.uTarget = targetTex.bind(1)  
+  shader.uniforms.uTarget = behaviorFbo.color[0].bind(1)  
   shader.uniforms.uTime = t++
   // shader.uniforms.uTurbulence = uTurbulence
   shader.uniforms.uGravity = uGravity
@@ -171,7 +185,7 @@ function render() {
   prevState = nextState
   nextState = tmp
 
-  pip([prevState.color[0], nextState.color[0]])
+  pip([prevState.color[0], nextState.color[0], behaviorFbo.color[0]])
 
   --renderLock
 }

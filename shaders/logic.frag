@@ -17,7 +17,7 @@ void main() {
   vec4 sampled = texture2D(uState, gl_FragCoord.xy / vec2(512.0)).rgba;
   vec4 targetParams = texture2D(uTarget, gl_FragCoord.xy / vec2(512.0)); 
   vec2 target = targetParams.xy;
-  float turbulence = 12.0; // targetParams.z;
+  float turbulence = targetParams.z;
   // vec2 target = vec2(0.0, 0.0);
 
                 // vec2(0.0, texture2D(uTarget, vec2(0.0, 0.0)).a);

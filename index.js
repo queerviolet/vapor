@@ -9,9 +9,10 @@ const main = document.createElement('div')
 document.body.appendChild(main)
 
 window.addEventListener('mousemove',
-  ({clientX, clientY}) => {
-    // particles.turbulence(120)
-    particles.chase(clientX, clientY)
+  evt => {
+    const {clientX, clientY, movementX: dx, movementY: dy} = evt
+        , dist = dx ** 2 + dy ** 2
+    particles.chase(clientX, clientY, Math.sqrt(dist))
   })
 
 let req = null
