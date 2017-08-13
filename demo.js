@@ -5,6 +5,7 @@ var createShell  = require('gl-now')
 var createFBO    = require('gl-fbo')
 var createVAO    = require('gl-vao')
 var createTexture = require('gl-texture2d')
+const pip = require('gl-texture2d-pip')
 
 var ndarray = require('ndarray')
 var fill    = require('ndarray-fill')
@@ -32,13 +33,20 @@ shell.on('gl-render', render)
 module.exports = {chase, gravity, turbulence}
 
 let chaseCol = 0
-function chase(x, y) {
+function chase(x, y, turbulence=8) {
   const {width, height} = shell
       , pX = width * (-1 + 2 * (x / width))
       , pY = height * (1 - 2 * (y / height))
       , col = targetBuf.pick(chaseCol = (chaseCol + 1) % 512)
 
-  fill(col, (y, ch) => ch ? pY : pX)
+  fill(col, (y, ch) => {
+    switch (ch) {
+      case 0: return pX
+      case 1: return pY
+      case 2: return 8//turbulence      
+    }
+    return 0
+  })
   targetTex.setPixels(targetBuf)
 }
 
@@ -69,11 +77,15 @@ function init() {
   console.log('OES_texture_float:', gl.getExtension('OES_texture_float'))
   targetBuf = ndarray(new Float32Array(512 * 512 * 4), [512, 512, 4])
   targetTex = createTexture(gl, [512, 512], gl.RGBA, gl.FLOAT)
-    // fill(targetBuf.pick(chaseCol++),
-      // (y, ch) => ch ? pY : pX)
-  chase(0, 0)
+  fill(targetBuf, (x, y, ch) => {
+    switch (ch) {
+      case 0: return 0   // target.x
+      case 1: return 0   // target.y
+      case 2: return 12  // turbulence
+    }
+    return 0
+  })
   
-
   var initialState = ndarray(new Float32Array(512 * 512 * 4), [512, 512, 4])
   fill(initialState, function(x, y, ch) {
     // if (ch > 2) return 1
@@ -128,7 +140,7 @@ function render() {
   shader.uniforms.uState = prevState.color[0].bind(0)
   shader.uniforms.uTarget = targetTex.bind(1)  
   shader.uniforms.uTime = t++
-  shader.uniforms.uTurbulence = uTurbulence
+  // shader.uniforms.uTurbulence = uTurbulence
   shader.uniforms.uGravity = uGravity
 
   screenVertices.bind()
@@ -158,6 +170,8 @@ function render() {
   var tmp = prevState
   prevState = nextState
   nextState = tmp
+
+  pip([prevState.color[0], nextState.color[0], targetTex])
 
   --renderLock
 }

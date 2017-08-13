@@ -47,6 +47,7 @@
     "gl-now": "1.4.0",
     "gl-shader": "4.2.1",
     "gl-texture2d": "^2.1.0",
+    "gl-texture2d-pip": "^1.0.0",
     "gl-vao": "^0.0.3",
     "glsl-noise": "0.0.0",
     "highlight.js": "^9.12.0",
