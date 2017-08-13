@@ -29,41 +29,65 @@ var shell = createShell({
 shell.on('gl-init', init)
 shell.on('gl-render', render)
 
-module.exports = {reset, chase, gravity, turbulence, flush}
+let didInit
+module.exports = new Promise(resolve => didInit = resolve)
+    .then(() => ({reset, groups, group}))
 
-function flush() {
+let particleBehaviorHasChanged = false
+function updateParticles() {
   if (!behaviorFbo) return
+  if (!particleBehaviorHasChanged) return
+  console.log('updating particles')
   behaviorFbo.color[0].setPixels(behaviorNd)  
+  particleBehaviorHasChanged = false
 }
 
-let chaseCol = -1
-function chase(target, turbulence=8, colId=chaseCol = (chaseCol + 1) % 512, shouldFlush=true) {  
-  if (!behaviorNd) return
+function groups() {
+  const groups = new Array(512)
+  for (let i = 0; i != 512; ++i) {
+    groups[i] = group(i)
+  }
+  return groups
+}
 
-  const {width, height} = shell
-    , pX = x => width * (-1 + 2 * (x / width))
-    , pY = y => height * (1 - 2 * (y / height))
-    , col = behaviorNd.pick(colId)
-    , P = Array.isArray(target)
-        ? t => target
-        : target
-    , [turbX, turbY] = Array.isArray(turbulence)
-        ? turbulence
-        : [turbulence, turbulence]
+const group = i => {
+  const col = behaviorNd.pick(i)
+  return new Group(col)
+}
 
-  fill(col, (y, ch) => {
-    const t = y / 512
-        , [px, py] = P(y / 512)
-    switch (ch) {
-      case 0: return pX(px)
-      case 1: return pY(py)
-      case 2: return turbX
-      case 3: return turbY
-    }
-    return 0
-  })
-  if (shouldFlush) flush()
-  return colId
+class Group {
+  constructor(behavior) {
+    this.behavior = behavior
+  }
+
+  chase(target, turbulence=8) {
+    const {width, height} = shell
+      , pX = x => width * (-1 + 2 * (x / width))
+      , pY = y => height * (1 - 2 * (y / height))
+      , {behavior: col} = this
+      , P = Array.isArray(target)
+          ? t => target
+          : target
+      , [turbX, turbY] = Array.isArray(turbulence)
+          ? turbulence
+          : [turbulence, turbulence]
+
+    fill(col, (y, ch) => {
+      const t = y / 512
+          , [px, py] = P(y / 512)
+      switch (ch) {
+        case 0: return pX(px)
+        case 1: return pY(py)
+        case 2: return turbX
+        case 3: return turbY
+      }
+      return 0
+    })
+    particleBehaviorHasChanged = true
+    return this
+  }
+
+  flush() { return flush() }
 }
 
 function reset(turbulence=8) {
@@ -77,14 +101,6 @@ function reset(turbulence=8) {
     return 0
   })
   behaviorFbo.color[0].setPixels(behaviorNd)
-}
-
-function gravity(g) {
-  uGravity = g
-}
-
-function turbulence(turb) {
-  uTurbulence = turb
 }
 
 window.shell = shell
@@ -157,6 +173,8 @@ function init() {
     , size: 2
     , buffer: createBuffer(gl, index)
   }])
+
+  didInit()
 }
 
 var cleared = false
@@ -167,6 +185,9 @@ function render() {
   if (++renderLock == 5)
     return console.error(`Too many failures, rendering suppressed.`)
   if (renderLock > 5) return
+  
+  updateParticles()
+
   var gl = shell.gl
   // Switch to clean FBO for GPGPU
   // particle motion

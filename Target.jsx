@@ -16,14 +16,16 @@ module.exports = class extends React.Component {
     this.targetElement.turbulence = turbulence
   }
 
-  style = {
-    width: '100px',
-    height: '100px',
-    border: 'thin solid fuchsia'
+  style(style) {
+    return Object.assign({
+      width: '100px',
+      height: '100px',
+      border: 'thin solid fuchsia'
+    }, style)
   }
 
   render() {
     const {style={}} = this.props
-    return <div className='particle-target' style={this.style} ref={this.targetDidMount} />
+    return <div className='particle-target' style={this.style(style)} ref={this.targetDidMount} />
   }
 }
