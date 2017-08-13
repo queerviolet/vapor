@@ -32,18 +32,23 @@ shell.on('gl-render', render)
 module.exports = {chase, gravity, turbulence}
 
 let chaseCol = 0
-function chase(x, y, turbulence=8) {
+function chase(target, turbulence=8) {  
   if (!behaviorNd) return
 
-    const {width, height} = shell
-      , pX = width * (-1 + 2 * (x / width))
-      , pY = height * (1 - 2 * (y / height))
-      , col = behaviorNd.pick(chaseCol = (chaseCol + 1) % 512)
+  const {width, height} = shell
+    , pX = x => width * (-1 + 2 * (x / width))
+    , pY = y => height * (1 - 2 * (y / height))
+    , col = behaviorNd.pick(chaseCol = (chaseCol + 1) % 512)
+    , P = Array.isArray(target)
+        ? t => target
+        : target
 
   fill(col, (y, ch) => {
+    const t = y / 512
+        , [px, py] = P(y / 512)
     switch (ch) {
-      case 0: return pX
-      case 1: return pY
+      case 0: return pX(px)
+      case 1: return pY(py)
       case 2: return turbulence      
     }
     return 0

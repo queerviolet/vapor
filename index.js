@@ -10,10 +10,20 @@ document.body.appendChild(main)
 
 window.addEventListener('mousemove',
   evt => {
-    const {clientX, clientY, movementX: dx, movementY: dy} = evt
+    const {clientX: x1, clientY: y1, movementX: dx, movementY: dy} = evt
         , dist = dx ** 2 + dy ** 2
-    particles.chase(clientX, clientY, Math.sqrt(dist))
+        , x0 = x1 - dx
+        , y0 = y1 - dy
+        , from = [x0, y0]
+        , to = [x1, y1]
+    particles.chase(line(from, to), 0)//Math.sqrt(dist))
   })
+
+let line = ([x0, y0], [x1, y1]) => {
+  const dx = x1 - x0
+      , dy = y1 - y0
+  return t => [x0 + t * dx, y0 + t * dy]
+}
 
 let req = null
 window.addEventListener('scroll',
