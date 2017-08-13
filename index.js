@@ -16,7 +16,8 @@ window.addEventListener('mousemove',
         , y0 = y1 - dy
         , from = [x0, y0]
         , to = [x1, y1]
-    particles.chase(line(from, to), 0)//Math.sqrt(dist))
+    let t = Math.min(Math.max(Math.sqrt(dist), 2), 16)
+    particles.chase(line(from, to), [dx, dy])
   })
 
 let line = ([x0, y0], [x1, y1]) => {

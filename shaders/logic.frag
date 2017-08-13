@@ -17,7 +17,7 @@ void main() {
   vec4 sampled = texture2D(uState, gl_FragCoord.xy / vec2(512.0)).rgba;
   vec4 targetParams = texture2D(uTarget, gl_FragCoord.xy / vec2(512.0)); 
   vec2 target = targetParams.xy;
-  float turbulence = targetParams.z;
+  vec2 turbulence = targetParams.zw;
   // vec2 target = vec2(0.0, 0.0);
 
                 // vec2(0.0, texture2D(uTarget, vec2(0.0, 0.0)).a);
@@ -28,9 +28,9 @@ void main() {
   // float t = uTime;
 
   nextPosition += vec2(
-      simplex(vec3(nextPosition * 0.005, 9280.03992092039 + t + gl_FragCoord.x / 110.0) + OFFSET)
-    , simplex(vec3(nextPosition * 0.005, 3870.73392092039 - t - gl_FragCoord.y / 110.0) + OFFSET)
-  ) * turbulence;
+      turbulence.x * simplex(vec3(nextPosition * 0.005, 9280.03992092039 + t + gl_FragCoord.x / 110.0) + OFFSET)
+    , turbulence.y * simplex(vec3(nextPosition * 0.005, 3870.73392092039 - t - gl_FragCoord.y / 110.0) + OFFSET)
+  );
 
   // Circular current:
   //  

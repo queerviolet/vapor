@@ -42,6 +42,9 @@ function chase(target, turbulence=8) {
     , P = Array.isArray(target)
         ? t => target
         : target
+    , [turbX, turbY] = Array.isArray(turbulence)
+        ? turbulence
+        : [turbulence, turbulence]
 
   fill(col, (y, ch) => {
     const t = y / 512
@@ -49,7 +52,8 @@ function chase(target, turbulence=8) {
     switch (ch) {
       case 0: return pX(px)
       case 1: return pY(py)
-      case 2: return turbulence      
+      case 2: return turbX
+      case 3: return turbY
     }
     return 0
   })
@@ -85,8 +89,8 @@ function init() {
       case 0: return 0
       case 1: return 0
       case 2: return 12
+      case 3: return 12
     }
-    return 0
   })
   behaviorFbo.color[0].setPixels(behaviorNd)
   // console.log(gl.getSupportedExtensions)
