@@ -171,7 +171,7 @@ function render() {
   prevState = nextState
   nextState = tmp
 
-  pip([prevState.color[0], nextState.color[0], targetTex])
+  pip([prevState.color[0], nextState.color[0]])
 
   --renderLock
 }
