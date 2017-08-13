@@ -18,7 +18,7 @@ var targetBuf
 var shaders
 
 // let target = {x: window.innerWidth / 2, y: window.innerHeight / 2}
-let gravity = 0
+let uGravity = 0
 let uTurbulence = 16.0
 
 var t = 0
@@ -29,11 +29,24 @@ var shell = createShell({
 shell.on('gl-init', init)
 shell.on('gl-render', render)
 
-module.exports = {
-  chase: (x, y) => {
-  },
-  gravity: g => gravity = g,
-  turbulence: turb => uTurbulence = turb
+module.exports = {chase, gravity, turbulence}
+
+function chase(x, y) {
+  const {width, height} = shell
+      , pX = width * (-1 + 2 * (x / width))
+      , pY = height * (1 - 2 * (y / height))
+
+  fill(targetBuf, (x, y, ch) => ch ? pY : pX)  
+  targetTex.setPixels(targetBuf)
+  console.log(pX, pY)  
+}
+
+function gravity(g) {
+  uGravity = g
+}
+
+function turbulence(turb) {
+  uTurbulence = turb
 }
 
 window.shell = shell
@@ -55,17 +68,7 @@ function init() {
   console.log('OES_texture_float:', gl.getExtension('OES_texture_float'))
   targetBuf = ndarray(new Float32Array(512 * 512 * 4), [512, 512, 4])
   targetTex = createTexture(gl, [512, 512], gl.RGBA, gl.FLOAT)
-
-  // Initialize target buf
-  for (var x = 0; x < 512; x++)
-    for (var y = 0; y < 512; y++) {
-      targetBuf[i++] = 200 // x / 512
-      targetBuf[i++] = 200 // y / 512
-      i++; i++
-    }
-  
-  targetTex.setPixels(targetBuf)
-
+  chase(0, 0)
   
 
   var initialState = ndarray(new Float32Array(512 * 512 * 4), [512, 512, 4])
@@ -120,11 +123,10 @@ function render() {
   var shader = shaders.logic
   shader.bind()
   shader.uniforms.uState = prevState.color[0].bind(0)
+  shader.uniforms.uTarget = targetTex.bind(1)  
   shader.uniforms.uTime = t++
-  shader.uniforms.uTarget = targetTex.bind()
-
   shader.uniforms.uTurbulence = uTurbulence
-  shader.uniforms.uGravity = gravity
+  shader.uniforms.uGravity = uGravity
 
   screenVertices.bind()
   gl.drawArrays(gl.TRIANGLES, 0, 6)

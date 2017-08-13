@@ -17,6 +17,8 @@ const float SPEED = 16.0;
 void main() {
   vec4 sampled = texture2D(uState, gl_FragCoord.xy / vec2(512.0)).rgba;
   vec2 target = texture2D(uTarget, gl_FragCoord.xy / vec2(512.0)).xy;
+  // vec2 target = vec2(0.0, 0.0);
+
                 // vec2(0.0, texture2D(uTarget, vec2(0.0, 0.0)).a);
   vec2 nextPosition = sampled.xy;
   vec2 lastVelocity = sampled.zw;
@@ -64,6 +66,10 @@ void main() {
   // nextPosition = nextPosition * 0.9 + uTarget;
 
   // vec2 velocity = nextPosition - sampled.xy;
+
+  // Debug
+  // nextPosition = target;
+
   vec2 velocity = springForce + attraction;
   gl_FragColor = vec4(vec3(nextPosition, velocity.x), velocity.y);
   // gl_FragColor = vec4(gl_FragCoord.xy, 1.0, 1.0);
