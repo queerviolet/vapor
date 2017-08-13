@@ -2,6 +2,7 @@ import React from 'react'
 import {render} from 'react-dom'
 import {AppContainer} from 'react-hot-loader'
 
+import {line, offsetXY} from './geom'
 import particles from './demo'
 
 const main = document.createElement('div')
@@ -18,12 +19,6 @@ document.body.appendChild(main)
 //     let t = Math.min(Math.max(Math.sqrt(dist), 2), 16)
 //     particles.chase(line(from, to), [dx, dy])
 //   })
-
-let line = ([x0, y0], [x1, y1]) => {
-  const dx = x1 - x0
-      , dy = y1 - y0
-  return t => [x0 + t * dx, y0 + t * dy]
-}
 
 let req = null
 particles.then(particles => {
@@ -74,16 +69,15 @@ const updateWithParticles = particles => {
       if (!groupIsFree) {
         const id = group[isTracking][targetId]
         trackers[id] = (trackers[id] || 0) + 1
-        if (trackers[id] > groups.length / visible.length)
+        if (trackers[id] > 1.1 * (groups.length / visible.length))
           shouldReassign = true
       }
       if (groupIsFree || shouldReassign) {
         const something = visible[Math.floor(Math.random() * visible.length)]
             , {el} = something
             , {target=[0, 0],
-               offsetLeft: x0,
-               offsetTop: y0,
                turbulence=12} = el
+            , [x0, y0] = offsetXY(el)
         group.chase(relativeTo(x0, y0)(target), turbulence)
         group[isTracking] = something.el
       }
@@ -106,67 +100,6 @@ const visibleInWindow = (wWidth, wHeight, tick) => el => {
   return null
 }
 
-
-
-// const initQueue = () => new Array(512).fill('x').map((x, i) => i)
-
-// let clusterIds = Symbol()
-// let clusterIdQueue = initQueue()
-// let chasing = []
-
-// function update() {
-//   req = null
-//   const wWidth = window.innerWidth
-//       , wHeight = window.innerHeight
-  
-//   const visible = Array
-//       .from(document.querySelectorAll('.particle-target'))
-//       .map(visibleInWindow(wWidth, wHeight))
-//       .filter(x => x)
-  
-//   if (!visible.length && chasing.length) {
-//     // reset
-//     console.log('chasing nothing, reset')
-//     chasing.forEach(el => el[clusterIds] = null)
-//     clusterIdQueue = initQueue()
-//     chasing = []
-//     particles.reset()
-//     return
-//   }
-
-//    console.log('chasing:', chasing, 'visible:', visible)
-//   chasing = chasing
-//     .map(el => {
-//       if (!visible.find(({el: visibleEl}) => visibleEl === el)) {
-//         // We were chasing this, but now it's off screen
-//         console.log('no longer chasing', el[clusterIds])
-//         if (!el[clusterIds]) return
-//         // free up cluster ids
-//         clusterIdQueue.push(...el[clusterIds])
-//         el[clusterIds] = null
-//         return
-//       }
-//       return el
-//     })
-//     .filter(x => x)
-  
-//   visible.forEach(({el, box}) => {
-//     if (el[clusterIds]) return // We're already chasing this one
-//     console.log('now chasing', el, box)
-//     startChasing({el, box})
-//     chasing.push(el)
-//   })
-
-//   // TODO: Drain the queue to stop chasing things that are offscreen.
-//   if (visible.length)
-//     while (clusterIdQueue.length) {
-//       const something = visible[Math.floor(Math.random() * visible.length)]
-//       startChasing(something)
-//     }
-
-//   particles.flush()
-// }
-
 const relativeTo = (x0, y0) => target => {
   const P = Array.isArray(target)
     ? t => target
@@ -177,15 +110,6 @@ const relativeTo = (x0, y0) => target => {
   }
 }
 
-// function startChasing({el, box: {top, left}}) {
-//   if (!clusterIdQueue.length) return
-//   const id = clusterIdQueue.shift()
-//       , {target=[0, 0], turbulence=12} = el
-//   particles.chase(relativeTo(left, top)(target), turbulence, id, false)
-//   ;(el[clusterIds] = el[clusterIds] || [])
-//     .push(id)
-// }
-
 const asc = ({distance: x}, {distance: y}) => x - y
 
 const App = ({children}) => <div>{children}</div>
@@ -195,15 +119,41 @@ import AboutReact from './talk/react.kubo'
 import AboutWebGL from './talk/webgl.kubo'
 
 import Target from './Target'
+import Shape from './Shape'
+import Slide from './Slide'
 
 render(
   <AppContainer>
     <App>
-      <Target />
+      <Target style={{margin: 'auto'}}/>
       <Whoami />
+      <Target target={line([0, 0], [500, 0])} turbulence={5}
+        style={{margin: 'auto', width: 500}}/>
       <AboutReact />
-      <Target style={{width: '100%'}}/>
-      <AboutWebGL />
-      <Target />      
+      <Shape
+        style={{width: '50%', margin: 'auto'}}
+        points={[
+          [0, 0],
+          [200, 0],
+          [200, 200],
+          [0, 200],
+          [0, 0],
+        ]} 
+        turbulence={8} />
+      <AboutReact />
+      <Slide>
+        <Shape points={[
+          [250, 150],
+          [375, 0],        
+          [500, 100],
+          [250, 500],
+          [0, 100],
+          [125, 0],
+          [250, 150],
+        ]} style={{
+          margin: 'auto',
+          width: '500px',
+          height: '500px'}} turbulence={8} /> 
+      </Slide>
     </App>
   </AppContainer>, main)

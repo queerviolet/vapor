@@ -35,7 +35,7 @@ module.exports = new Promise(resolve => didInit = resolve)
     .then(() => ({reset, groups, group, scroll}))
 
 function scroll(x, y) {
-  uOffset = [2 * x, 2 * y]
+  uOffset = [2 * x, 1.8 * y]
 }
 
 let particleBehaviorHasChanged = false

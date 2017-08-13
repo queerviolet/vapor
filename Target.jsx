@@ -18,8 +18,8 @@ module.exports = class extends React.Component {
 
   style(style) {
     return Object.assign({
-      width: '100px',
-      height: '100px',
+      width: 0,
+      height: 0,
       border: 'thin solid fuchsia'
     }, style)
   }
