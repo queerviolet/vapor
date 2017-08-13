@@ -31,14 +31,11 @@ shell.on('gl-render', render)
 
 module.exports = {chase, gravity, turbulence}
 
-
 let chaseCol = 0
 function chase(x, y, turbulence=8) {
   if (!behaviorNd) return
-  // nextState.color[0].setPixels
 
-  // globalBehavior = {target: [x, y], turbulence}
-  const {width, height} = shell
+    const {width, height} = shell
       , pX = width * (-1 + 2 * (x / width))
       , pY = height * (1 - 2 * (y / height))
       , col = behaviorNd.pick(chaseCol = (chaseCol + 1) % 512)
@@ -82,7 +79,7 @@ function init() {
     switch (ch) {
       case 0: return 0
       case 1: return 0
-      case 2: return 2//turbulence      
+      case 2: return 12
     }
     return 0
   })
