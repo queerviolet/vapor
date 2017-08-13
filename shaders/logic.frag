@@ -16,7 +16,8 @@ const float SPEED = 16.0;
 
 void main() {
   vec4 sampled = texture2D(uState, gl_FragCoord.xy / vec2(512.0)).rgba;
-  vec2 target = texture2D(uTarget, gl_FragCoord.xy / vec2(512.0)).xy;
+  vec4 targetParams = texture2D(uTarget, gl_FragCoord.xy / vec2(512.0)); 
+  vec2 target = targetParams.xy;
   // vec2 target = vec2(0.0, 0.0);
 
                 // vec2(0.0, texture2D(uTarget, vec2(0.0, 0.0)).a);

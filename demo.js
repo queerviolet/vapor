@@ -31,14 +31,15 @@ shell.on('gl-render', render)
 
 module.exports = {chase, gravity, turbulence}
 
+let chaseCol = 0
 function chase(x, y) {
   const {width, height} = shell
       , pX = width * (-1 + 2 * (x / width))
       , pY = height * (1 - 2 * (y / height))
+      , col = targetBuf.pick(chaseCol = (chaseCol + 1) % 512)
 
-  fill(targetBuf, (x, y, ch) => ch ? pY : pX)  
+  fill(col, (y, ch) => ch ? pY : pX)
   targetTex.setPixels(targetBuf)
-  console.log(pX, pY)  
 }
 
 function gravity(g) {
@@ -68,6 +69,8 @@ function init() {
   console.log('OES_texture_float:', gl.getExtension('OES_texture_float'))
   targetBuf = ndarray(new Float32Array(512 * 512 * 4), [512, 512, 4])
   targetTex = createTexture(gl, [512, 512], gl.RGBA, gl.FLOAT)
+    // fill(targetBuf.pick(chaseCol++),
+      // (y, ch) => ch ? pY : pX)
   chase(0, 0)
   
 
