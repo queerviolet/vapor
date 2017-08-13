@@ -1,3 +1,5 @@
+'use strict'
+
 var createBuffer = require('gl-buffer')
 var createShell  = require('gl-now')
 var createFBO    = require('gl-fbo')
@@ -6,8 +8,8 @@ var createVAO    = require('gl-vao')
 var ndarray = require('ndarray')
 var fill    = require('ndarray-fill')
 
+let screenVertices
 var particleVertices
-var screenVertices
 var nextState
 var prevState
 var shaders
@@ -17,8 +19,10 @@ var shell = createShell({
   clearColor: [1,1,1,1]
 })
 
-shell.on('gl-render', render)
 shell.on('gl-init', init)
+shell.on('gl-render', render)
+
+module.exports = shell
 
 function init() {
   var gl = shell.gl
@@ -27,6 +31,7 @@ function init() {
 
   nextState = createFBO(gl, 512, 512, { 'float': true })
   prevState = createFBO(gl, 512, 512, { 'float': true })
+  console.log(prevState)
 
   var initialState = ndarray(new Float32Array(512 * 512 * 4), [512, 512, 4])
   fill(initialState, function(x, y, ch) {
@@ -64,9 +69,8 @@ function init() {
 
 var cleared = false
 window.shell = shell
+
 function render() {
-
-
   var gl = shell.gl
   // Switch to clean FBO for GPGPU
   // particle motion

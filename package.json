@@ -5,10 +5,31 @@
   "main": "demo.js",
   "browser": "demo.js",
   "scripts": {
-    "start": "beefy demo.js:bundle.js --live -- -t glslifyify",
-    "prepublish": "browserify demo.js -t glslifyify > bundle.js"
+    "start": "beefy demo.js:bundle.js --live --debug",
+    "prepare": "browserify demo.js > bundle.js"
+  },
+  "browserify": {
+    "transform": [
+      [
+        "babelify",
+        {
+          "presets": [
+            "es2015",
+            "stage-2",
+            "react"
+          ]
+        }
+      ],
+      [
+        "glslifyify"
+      ]
+    ]
   },
   "dependencies": {
+    "babel-preset-es2015": "^6.24.1",
+    "babel-preset-react": "^6.24.1",
+    "babel-preset-stage-2": "^6.24.1",
+    "babelify": "^7.3.0",
     "gl-buffer": "^2.1.2",
     "gl-fbo": "^2.0.5",
     "gl-now": "1.4.0",
