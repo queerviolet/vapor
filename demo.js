@@ -20,6 +20,7 @@ var shaders
 // let target = {x: window.innerWidth / 2, y: window.innerHeight / 2}
 let uGravity = 0
 let uTurbulence = 16.0
+let uOffset = [0, 0]
 
 var t = 0
 var shell = createShell({
@@ -31,7 +32,11 @@ shell.on('gl-render', render)
 
 let didInit
 module.exports = new Promise(resolve => didInit = resolve)
-    .then(() => ({reset, groups, group}))
+    .then(() => ({reset, groups, group, scroll}))
+
+function scroll(x, y) {
+  uOffset = [2 * x, 2 * y]
+}
 
 let particleBehaviorHasChanged = false
 function updateParticles() {
@@ -215,6 +220,7 @@ function render() {
   shader.bind()
   shader.uniforms.uState = nextState.color[0].bind(0)
   shader.uniforms.uScreen = [shell.width, shell.height]
+  shader.uniforms.uOffset = uOffset  
 
   particleVertices.bind()
 

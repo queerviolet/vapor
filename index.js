@@ -30,6 +30,7 @@ particles.then(particles => {
   const update = updateWithParticles(particles)
   window.addEventListener('scroll',
     () => req = req || requestAnimationFrame(update))
+  update()    
 })
 
 const visibleAt = Symbol()
@@ -40,8 +41,10 @@ const updateWithParticles = particles => {
   let tick = 0
   return () => {
     req = null
-    const wWidth = window.innerWidth
-        , wHeight = window.innerHeight
+    const {innerWidth: wWidth,
+           innerHeight: wHeight,
+           scrollX, scrollY} = window
+    particles.scroll(scrollX, scrollY)
 
     const visible = Array
        .from(document.querySelectorAll('.particle-target'))
@@ -76,9 +79,12 @@ const updateWithParticles = particles => {
       }
       if (groupIsFree || shouldReassign) {
         const something = visible[Math.floor(Math.random() * visible.length)]
-        // console.log(something.box.left, something.box.top)
-        group.chase([something.box.left, something.box.top])
-        console.log(something.el.offsetTop)
+            , {el} = something
+            , {target=[0, 0],
+               offsetLeft: x0,
+               offsetTop: y0,
+               turbulence=12} = el
+        group.chase(relativeTo(x0, y0)(target), turbulence)
         group[isTracking] = something.el
       }
     }
@@ -196,7 +202,7 @@ render(
       <Target />
       <Whoami />
       <AboutReact />
-      <Target />      
+      <Target style={{width: '100%'}}/>
       <AboutWebGL />
       <Target />      
     </App>
