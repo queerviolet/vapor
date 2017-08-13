@@ -5,14 +5,29 @@
   "main": "demo.js",
   "browser": "demo.js",
   "scripts": {
-    "start": "beefy demo.js:bundle.js --live --debug",
+    "start": "beefy index.js:bundle.js --live --debug",
     "prepare": "browserify demo.js > bundle.js"
   },
   "browserify": {
+    "extensions": [
+      ".js",
+      ".json",
+      ".kubo",
+      ".mmm"
+    ],
     "transform": [
+      [
+        "/Users/ashi/hack/werkit/packages/many-matters/browserify"
+      ],
       [
         "babelify",
         {
+          "extensions": [
+            ".js",
+            ".jsx",
+            ".kubo",
+            ".mmm"
+          ],
           "presets": [
             "es2015",
             "stage-2",
@@ -22,7 +37,8 @@
       ],
       [
         "glslifyify"
-      ]
+      ],
+      "cssify"
     ]
   },
   "dependencies": {
@@ -30,15 +46,25 @@
     "babel-preset-react": "^6.24.1",
     "babel-preset-stage-2": "^6.24.1",
     "babelify": "^7.3.0",
+    "cssify": "^1.0.3",
+    "errorify": "^0.3.1",
     "gl-buffer": "^2.1.2",
     "gl-fbo": "^2.0.5",
     "gl-now": "1.4.0",
     "gl-shader": "4.2.1",
     "gl-texture2d": "^2.1.0",
-    "gl-vao": "1.3.0",
+    "gl-vao": "^0.0.3",
     "glsl-noise": "0.0.0",
+    "highlight.js": "^9.12.0",
+    "marked": "^0.3.6",
     "ndarray": "^1.0.18",
     "ndarray-fill": "^1.0.2",
+    "react": "^15.6.1",
+    "react-dom": "^15.6.1",
+    "react-lowlight": "^1.1.1",
+    "rehype": "^5.0.0",
+    "void-elements": "^3.1.0",
+    "watchify": "^3.9.0",
     "zeros": "^1.0.0"
   },
   "devDependencies": {

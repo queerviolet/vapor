@@ -31,7 +31,6 @@ function init() {
 
   nextState = createFBO(gl, 512, 512, { 'float': true })
   prevState = createFBO(gl, 512, 512, { 'float': true })
-  console.log(prevState)
 
   var initialState = ndarray(new Float32Array(512 * 512 * 4), [512, 512, 4])
   fill(initialState, function(x, y, ch) {
@@ -40,8 +39,8 @@ function init() {
     return 0
   })
 
-  nextState.color.setPixels(initialState)
-  prevState.color.setPixels(initialState)
+  nextState.color[0].setPixels(initialState)
+  prevState.color[0].setPixels(initialState)
 
   screenVertices = createVAO(gl, null, [{
       type: gl.FLOAT
@@ -80,7 +79,7 @@ function render() {
 
   var shader = shaders.logic
   shader.bind()
-  shader.uniforms.uState = prevState.color.bind(0)
+  shader.uniforms.uState = prevState.color[0].bind(0)
   shader.uniforms.uTime = t++
   const {mouseX, mouseY, width, height} = shell  
   shader.uniforms.uTarget = [
@@ -99,7 +98,7 @@ function render() {
 
   var shader = shaders.render
   shader.bind()
-  shader.uniforms.uState = nextState.color.bind(0)
+  shader.uniforms.uState = nextState.color[0].bind(0)
   shader.uniforms.uScreen = [shell.width, shell.height]
 
   particleVertices.bind()

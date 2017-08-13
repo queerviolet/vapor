@@ -1,0 +1,182 @@
+@import url('https://fonts.googleapis.com/css?family=Crimson+Text:400,700,700i|Lato:300,400|Open+Sans:300,400|Source+Sans+Pro:300,400');
+html, body {
+  margin: 0; padding: 0;
+  font-family: 'Crimson Text';
+  font-size: 22px;
+}
+
+code, .hljs-inline > code.hljs {
+  font-size: 14px;
+  font-family: Menlo;
+}
+
+div.workshop {
+  display: flex;  
+  background-repeat: no-repeat;
+  background-blend-mode: additive;
+}
+
+.workshop-left {
+  width: 250px;
+}
+
+@media screen and (max-width: 1000px) {
+  .workshop-left { display: none; }
+}
+
+@media screen and (max-width: 760px) {
+  .workshop-content > main {
+    max-width: initial;
+    width: 100%;
+  }
+
+  .workshop-content {
+    width: calc(100% - 18px);
+  }
+}
+
+.workshop-content {
+  margin: auto;
+  max-width: 720px;
+}
+
+@keyframes blur-out {
+  from {
+    opacity: 0.5;
+  }
+
+  to {
+    opacity: 0;
+  }
+}
+
+.workshop-watermark {
+  opacity: 0.1;
+  pointer-events: none;
+  position: fixed;
+  top: 0; left: 0;
+  z-index: -100000;
+  margin: 0;
+
+  /* This animates on scroll */
+  animation: blur-out ease 4s;
+  animation-duration: 1700s;
+  animation-play-state: paused;
+}
+
+img {
+  width: 100%;
+
+  /* Center */
+  /* position: relative;
+  left: 50%;
+  transform: translate(-50%); */
+
+  margin-top: 9px;
+  margin-bottom: 9px;
+  text-align: center;
+  display: block;  
+  box-shadow: 2px 2px 8px gray;
+}
+
+pre.lowlight {
+  width: 100%;
+  /* Center */
+  /* position: relative;
+  left: 50%;
+  transform: translate(-50%); */
+  box-shadow: 2px 2px 8px gray;  
+}
+
+pre.hljs-inline {
+  display: inline;
+}
+
+.nav-concept-header {
+  font-family: 'Lato';
+}
+
+nav.workshop {
+  position: fixed;
+  font-family: 'Lato';
+   padding: 9px;
+  padding-right: 18px; 
+  
+  top: 0; left: 0; bottom: 0;
+  overflow: auto;
+
+  font-size: 16px;
+  max-width: 250px;
+  box-sizing: border-box;
+}
+
+nav.workshop h1 {
+  font-size: 18px;
+  margin: 16px;
+  margin-bottom: 9px;
+  margin-left: 22px;
+}
+
+nav.workshop ul {
+  margin-top: 0;
+  margin-left: 0;
+  padding-left: 18px;
+}
+
+nav.workshop li {
+  padding-left: 12px;
+  margin-top: 4px;
+  margin-bottom: 4px;
+}
+
+a {
+  text-decoration: none;
+}
+
+a.nav-action-link {
+  color: #767;
+  position: relative;
+}
+
+a.nav-concept-link {
+  color: #545;
+}
+
+a.nav-concept-link.visible {
+  color: #636;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+a.nav-action-link.visible {
+  color: #414;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);  
+}
+
+.nav-action-link {
+  font-weight: 300;
+}
+
+li.nav-action.visible {
+  list-style-type: disc;
+  color: #a0a;
+}
+
+.hint {
+  margin: 18px;
+  background: #eee;
+  border-radius: 5px;
+  padding: 4px;
+}
+
+.hint > h1:before {
+  content: 'Hint: ';
+}
+
+.hint > h1 {
+  font-size: 18px;
+  margin: 0;
+}
+
+h1, h2, h3, h4, h5 { 
+  font-family: 'Lato';
+}
