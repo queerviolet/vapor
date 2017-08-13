@@ -1,11 +1,4 @@
-@[Action] Blasting React Into Space
-
-
-# 2017-08-07 23:42:25 (CEST).md
-
-# Blasting React Into Space
-
-## Who am I (5 mins)
+@[Action] Who am I? (5 mins)
   - Ashi, teacher at Fullstack Academy
   - We teach React
   - Students are interested in doing new and crazy things
@@ -18,24 +11,8 @@
   - pgb-vsu
   - personal speaking trainer (a-frame)
 
-## React (5 mins)
-  - Data-driven mapping to UI elements
-  - Pattern, syntax, implementation
-    - Pattern: the Virtual DOM as function bindings
-      - partial
-      - extensible
-      - introspectable
-      - editable
-    - Syntax: JSX
-    - foo
-    - Implementation: Reconciler
 
 ## WebGL  
-          @[div]
-          @  className `particle-target`
-          @  data-shape `plane`
-          @  data-turbulence 0
-          @  style {width: '100px', height: '200px', position: 'relative', left: '50%'}
   - High level interface to low level hardware
   - Your CPU:
     - A few (powerful) cores

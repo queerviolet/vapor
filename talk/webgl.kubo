@@ -1,0 +1,37 @@
+@[Action] WebGL  
+  - High level interface to low level hardware
+  - Your CPU:
+    - A few (powerful) cores
+    - Branch prediction and speculative execution
+    - Better at serial workloads
+  - Your GPU:
+    - https://developer.nvidia.com/content/life-triangle-nvidias-logical-pipeline    
+    - LOTS of crap cores
+    - Insanely great at parallel workloads, like figuring out the color of
+      every pixel on the screen 
+      a hundred times per second.
+  
+  - Writing WebGL breaks down into:
+    - Writing shaders: little programs that run on the GPU and tell it what to draw
+    - Managing buffers: data to feed these little programs, and where to store their
+      results.
+    - APIs like Vulkan and Metal make this more obvious.      
+    - WebGL, based on OpenGL, is a bit of an old API, and has some quaintness as a
+      result.
+  - Writing WebGL:
+
+      @[Code] vertex
+      void main() {
+        gl_Position = projectionMatrix * vec4(position, 1.0);
+      }
+
+      @[Code] fragment
+      void main() {
+        gl_FragColor = vec4(1, 1, 1, 1);
+      }
+
+    Two shaders. This draws the geometry in flat white.
+  
+  - Example of drawing some points.
+  - Example of drawing a *lot* of points.
+  - Now we make them move.

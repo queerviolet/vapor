@@ -1,0 +1,11 @@
+@[Action] React (5 mins)
+  - Data-driven mapping to UI elements
+  - Pattern, syntax, implementation
+    - Pattern: the Virtual DOM as function bindings
+      - partial
+      - extensible
+      - introspectable
+      - editable
+    - Syntax: JSX
+    - foo
+    - Implementation: Reconciler

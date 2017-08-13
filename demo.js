@@ -29,16 +29,21 @@ var shell = createShell({
 shell.on('gl-init', init)
 shell.on('gl-render', render)
 
-module.exports = {chase, gravity, turbulence}
+module.exports = {reset, chase, gravity, turbulence, flush}
 
-let chaseCol = 0
-function chase(target, turbulence=8) {  
+function flush() {
+  if (!behaviorFbo) return
+  behaviorFbo.color[0].setPixels(behaviorNd)  
+}
+
+let chaseCol = -1
+function chase(target, turbulence=8, colId=chaseCol = (chaseCol + 1) % 512, shouldFlush=true) {  
   if (!behaviorNd) return
 
   const {width, height} = shell
     , pX = x => width * (-1 + 2 * (x / width))
     , pY = y => height * (1 - 2 * (y / height))
-    , col = behaviorNd.pick(chaseCol = (chaseCol + 1) % 512)
+    , col = behaviorNd.pick(colId)
     , P = Array.isArray(target)
         ? t => target
         : target
@@ -54,6 +59,20 @@ function chase(target, turbulence=8) {
       case 1: return pY(py)
       case 2: return turbX
       case 3: return turbY
+    }
+    return 0
+  })
+  if (shouldFlush) flush()
+  return colId
+}
+
+function reset(turbulence=8) {
+  fill(behaviorNd, (x, y, ch) => {
+    switch (ch) {
+      case 0: return 0
+      case 1: return 0
+      case 2: return turbulence
+      case 3: return turbulence
     }
     return 0
   })
