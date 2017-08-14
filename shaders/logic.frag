@@ -51,7 +51,7 @@ void main() {
   
   // A force that falls off with the inverse square of distance:  
   float dist = length(goal) / 8.0;
-  vec2 attraction = uGravity * goal * pow(dist, -0.7);
+  vec2 attraction = uGravity * goal * pow(dist, -0.4);
   nextPosition += attraction;
 
   // Debugging:

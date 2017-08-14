@@ -71,6 +71,8 @@ class Vapor extends React.Component {
     return this
   }
 
+  getGravity = () => this.uGravity
+
   resize = () => {
     const {canvas} = this
     if (!canvas) return
@@ -203,6 +205,7 @@ class Vapor extends React.Component {
       draw: this.draw,
       setTargetOffset: this.setTargetOffset,
       setGravity: this.setGravity,
+      getGravity: this.getGravity,
     }
   }
 }
@@ -211,6 +214,7 @@ Vapor.childContextTypes = {
   draw: PropTypes.func,
   setTargetOffset: PropTypes.func,
   setGravity: PropTypes.func,
+  getGravity: PropTypes.func,
 }
 
 export default Vapor
@@ -328,8 +332,8 @@ function drawParticles(gl, {shader, particlesVa, uniforms, dimension}) {
 
   // Additive blending!
   gl.enable(gl.BLEND)
-  // gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
-  gl.blendFunc(gl.ONE, gl.ONE)
+  gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA)
+  // gl.blendFunc(gl.ONE, gl.ONE)
   gl.drawArrays(gl.POINTS, 0, dimension * dimension)
   // gl.drawArrays(gl.POINTS, 0, 512 * 512)
   gl.disable(gl.BLEND)

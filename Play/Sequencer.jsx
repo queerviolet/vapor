@@ -174,7 +174,11 @@ class Sample extends React.Component {
     this.unsubscribe && this.unsubscribe()
   }
 
-  onClick = () => this.fireRef.set(!this.state.value)
+  onClick = () => {
+    this.context.draw(this.center, [16, 16], 512*512)
+    // setTimeout(() => this.context.setGravity(1), 113)
+    this.fireRef.set(!this.state.value)
+  }
 
   get style() {
     return {
@@ -188,14 +192,19 @@ class Sample extends React.Component {
     }
   }
 
+  get center() {
+    const box = this.refs.me.getBoundingClientRect()
+    return [box.left + box.width / 2,
+            box.top + box.height / 2]
+  }
+
   onPlay = () => {
     this.setState({playing: true})
-    const box = this.refs.me.getBoundingClientRect()
-        , centerXY = [box.left + box.width / 2,
-                      box.top + box.height / 2]
+    const centerXY = this.center
         , {beat=0} = this.props
-    this.context.draw(centerXY, [8, 8], 64)
-    this.context.draw(centerXY, [24, 24], 128)
+    this.context.setGravity(-this.context.getGravity())
+    this.context.draw(centerXY, [8, 8], 512*128)
+    // this.context.draw(centerXY, [16, 16], 1024)
     // this.context.setTargetOffset(centerXY)
     // this.context.setGravity(beat % 2 === 0 ? 1 : -1)
     setTimeout(() => this.setState({playing: false}), 113)
