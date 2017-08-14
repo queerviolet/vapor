@@ -194,8 +194,8 @@ class Sample extends React.Component {
         , centerXY = [box.left + box.width / 2,
                       box.top + box.height / 2]
         , {beat=0} = this.props
-    this.context.draw(centerXY, [8, 8], 512)
-    this.context.draw(centerXY, [24, 24], 1024)
+    this.context.draw(centerXY, [8, 8], 64)
+    this.context.draw(centerXY, [24, 24], 128)
     // this.context.setTargetOffset(centerXY)
     // this.context.setGravity(beat % 2 === 0 ? 1 : -1)
     setTimeout(() => this.setState({playing: false}), 113)

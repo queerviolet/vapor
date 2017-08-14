@@ -7,7 +7,7 @@ import Play from './Play'
 
 render(
   <AppContainer>
-    <Vapor>
+    <Vapor size={9}>
       <Play title='playground' />
     </Vapor>
   </AppContainer>, main)

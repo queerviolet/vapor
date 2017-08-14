@@ -119,6 +119,7 @@ class Vapor extends React.Component {
       
       nextStateFb, prevStateFb,
       behaviorFb,
+      pressureFb,
       
       screenVa, particlesVa,
       
@@ -142,6 +143,22 @@ class Vapor extends React.Component {
       }
     })
     
+    gl.viewport(0, 0, dimension, dimension)
+    gl.enable(gl.BLEND)
+    pressureFb.bind()
+    gl.clearColor(0, 0, 0, 0)  
+    gl.clear(gl.COLOR_BUFFER_BIT)
+    drawParticles(gl, {
+      shader: shaders.render,
+      particlesVa,
+      dimension,
+      uniforms: {
+        uState: nextStateFb.color[0].bind(0),
+        uScreen: [dimension, dimension],
+        uOffset: this.uOffset,
+      }
+    })    
+
     // Reset, draw to screen
     gl.bindFramebuffer(gl.FRAMEBUFFER, null)
     gl.disable(gl.DEPTH_TEST)
@@ -159,7 +176,7 @@ class Vapor extends React.Component {
     })
 
     // Draw previews of our states
-    pip([prevStateFb.color[0], nextStateFb.color[0]])
+    pip([prevStateFb.color[0], nextStateFb.color[0], pressureFb.color[0]])
 
     // Swap prev and next states
     this.nextStateFb = prevStateFb    
@@ -220,6 +237,8 @@ function initFrameBuffers(gl, dim) {
       , behaviorFb = stateFb(gl, dim)
       , behaviorNd = stateNd(dim)
 
+      , pressureFb = stateFb(gl, dim)
+
   // Create an initial state of zeroes
   fill(initialStateNd, (x, y, ch) => 0) //ch > 2 ? 1 : (Math.random() - 0.5) * 800.6125)
 
@@ -244,7 +263,8 @@ function initFrameBuffers(gl, dim) {
 
   return {
     nextStateFb, prevStateFb, initialStateNd,
-    behaviorFb, behaviorNd
+    behaviorFb, behaviorNd,
+    pressureFb
   }
 }
 
@@ -308,8 +328,8 @@ function drawParticles(gl, {shader, particlesVa, uniforms, dimension}) {
 
   // Additive blending!
   gl.enable(gl.BLEND)
-  gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA)
-  // gl.blendFunc(gl.ONE, gl.ONE)
+  // gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
+  gl.blendFunc(gl.ONE, gl.ONE)
   gl.drawArrays(gl.POINTS, 0, dimension * dimension)
   // gl.drawArrays(gl.POINTS, 0, 512 * 512)
   gl.disable(gl.BLEND)
