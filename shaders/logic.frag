@@ -9,16 +9,19 @@ uniform sampler2D uState;
 uniform sampler2D uTarget;
 uniform float uTime;
 uniform float uGravity;
+uniform mat4 uModel;
 
 const vec3 OFFSET = vec3(2399.24849823098, 3299.9028381, 389.09338327);
 
 void main() {
   vec4 sampled = texture2D(uState, gl_FragCoord.xy / vec2(512.0)).rgba;
   vec4 behavior = texture2D(uTarget, gl_FragCoord.xy / vec2(512.0)); 
-  vec3 target = behavior.xyz;
+  vec3 target = (uModel * vec4(behavior.xyz, 1.0)).xyz;
   float turbulence = behavior.w;
 
-  vec3 nextPosition = sampled.xyz;
+  vec3 lastPosition = sampled.xyz;
+  vec3 nextPosition = lastPosition;
+  float speed = sampled.a;  
 
   float t = uTime * 0.013849829389;
   // float t = uTime;
@@ -26,17 +29,18 @@ void main() {
   nextPosition += vec3(
       simplex(vec3(nextPosition.xy * 0.005, 9280.03992092039 + t + gl_FragCoord.x / 110.0) + OFFSET)
     , simplex(vec3(nextPosition.xz * 0.005, 3870.73392092039 - t - gl_FragCoord.y / 110.0) + OFFSET)
-    , simplex(vec3(nextPosition.zy * 0.005, 3870.73392092039 - t - gl_FragCoord.y / 110.0) + OFFSET)
+    , simplex(vec3(nextPosition.zy * 0.005, 3870.73392092039 - t - gl_FragCoord.z / 110.0) + OFFSET)
   ) * turbulence;
 
   // Circular current:
   //  
   // float radius = length(nextPosition);
   // float rad = 0.00002 * radius;
-  //
-  // nextPosition = vec2(
+  
+  // nextPosition = vec3(
   //     nextPosition.x * cos(rad) - nextPosition.y * sin(rad)
   //   , nextPosition.y * cos(rad) + nextPosition.x * sin(rad)
+  //   , nextPosition.z * cos(rad) - nextPosition.z * sin(rad)
   // );
   
   // Momentum:
@@ -57,17 +61,10 @@ void main() {
   vec3 springForce = 0.05 * goal;
   nextPosition += springForce;
   
-  // "Gravity", sticking them all together.
-  // nextPosition *= 0.99;
+  vec3 velocity = attraction + springForce;
+  nextPosition += 0.2 * velocity * speed;
 
-  // nextPosition = nextPosition * 0.9 + uTarget;
-
-  // vec2 velocity = nextPosition - sampled.xy;
-
-  // Debug
-  // nextPosition = target;
-
-  // vec3 velocity = springForce + attraction;
-  gl_FragColor = vec4(nextPosition.xy, 100.0 + nextPosition.z * 0.1, 1.0);
+  float nextSpeed = length(velocity);
+  gl_FragColor = vec4(nextPosition.xy, 100.0 + nextPosition.z * 0.1, nextSpeed);
   // gl_FragColor = vec4(gl_FragCoord.xy, 1.0, 1.0);
 }

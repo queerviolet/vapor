@@ -30,36 +30,36 @@ export default class extends React.Component {
   writeIndex = 0
   write([targetX, targetY, targetZ=10], turbulence=0,
         scale = 1.0,
-        i=this.writeIndex = (this.writeIndex + 1) % this.numParticles) {
+        i=this.writeIndex) {
     const {data} = this.behaviorNd
     data[4 * i + 0] = targetX * scale
     data[4 * i + 1] = targetY * scale
     data[4 * i + 2] = targetZ * scale
     data[4 * i + 3] = turbulence
+    this.writeIndex = (this.writeIndex + 1) % this.numParticles
     this.behaviorDirty = true
   }
 
-  model({positions}, turbulence, scale) {
+  alignWrites(align = 1) {    
+    this.writeIndex += this.writeIndex % align
+  }
+
+  mesh({positions}, turbulence, scale) {
+    // this.alignWrites(3)
     let i = positions.length; while (--i >= 0) {
       this.write(positions[i], turbulence, scale)
     }
   }
 
-  wireframe({positions, cells}, turbulence, scale, strokeCount=4) {
+  pointframe({positions, cells}, turbulence, scale, strokeCount=8) {
     let i = cells.length; while (--i >= 0) {      
       const [v0, v1, v2] = cells[i]
           , a = positions[v0]
           , b = positions[v1]
           , c = positions[v2]
-      // this.line(a, b, strokeCount, turbulence, scale)
-      // this.line(b, c, strokeCount, turbulence, scale)
-      // this.line(a, c, strokeCount, turbulence, scale)
-      this.write(a, turbulence, scale)
-      this.write(b, turbulence, scale)
-      this.write(b, turbulence, scale)
-      this.write(c, turbulence, scale)
-      this.write(a, turbulence, scale)
-      this.write(c, turbulence, scale)
+      this.line(a, b, strokeCount, turbulence, scale)
+      this.line(b, c, strokeCount, turbulence, scale)
+      this.line(a, c, strokeCount, turbulence, scale)
     }
   }
 
@@ -77,11 +77,15 @@ export default class extends React.Component {
       vec3.subtract(delta, to, from)
       vec3.scale(step, delta, 1 / count)
       vec3.copy(v, from)
-      while (--numStrokes >= 0)  
-        for (let t = 0; t <= 1; t += step) {
+      while (--numStrokes >= 0) {
+        // console.log('begin segment step=', step)
+        for (let i = 0; i <= count; ++i) {
+          // console.log('v:', v, step)
           this.write(v, turb, scale)
           vec3.add(v, v, step)
         }
+        // console.log('end segment')
+      }
     }
   })()
 
@@ -103,16 +107,10 @@ export default class extends React.Component {
         width * (-1 + 2 * (x / width)),
         height * (1 - 2 * (y / height))
       ]
-      console.log(`mat4.perspective(${uProjection},
-        ${Math.PI / 4},
-        ${width / height}, 0.01, 1000`)
-      
       mat4.perspective(uProjection,
         Math.PI / 4,
         width / height,
-        0.01, 1000)
-      console.log(uProjection)
-        // [0, 0, -1], [0, 0, 0], [0, 1, 0])
+        0.01, 1e6)
     }
   }
 
@@ -137,11 +135,14 @@ export default class extends React.Component {
     
     this.uProjection = mat4.create()
     this.uView = mat4.create()
-    mat4.lookAt(this.uView, [0, 0, 0], [0, 0, 1000], [0, 100, 0])
+    mat4.lookAt(this.uView, [0, 0, 0], [0, 0, 1], [0, 100, 0])
+
+    const uModel = this.uModel = mat4.create()
+    mat4.translate(uModel, uModel, [0, -5, 0])
 
     this.resize()
     
-    this.wireframe(require('bunny'), 0, 8)
+    this.pointframe(require('bunny'), 0.3, 8)
     this.frame()
   }
 
@@ -159,10 +160,13 @@ export default class extends React.Component {
       
       uTime=0,
       uOffset=[0,0],
+      uModel,
     } = this
     const {gravity: uGravity=0} = this.props
 
     this.updateBehavior()
+
+    mat4.rotateY(uModel, uModel, Math.PI / 360)
 
     computeState(gl, nextStateFb, {
       shader: shaders.logic,
@@ -171,6 +175,7 @@ export default class extends React.Component {
       uniforms: {
         uState: prevStateFb.color[0].bind(0),
         uTarget: behaviorFb.color[0].bind(1),
+        uModel: uModel,
         uGravity,
         uTime
       }
@@ -202,18 +207,17 @@ export default class extends React.Component {
     this.prevStateFb = nextStateFb
 
     this.uTime = uTime + 1
-    this.raf = requestAnimationFrame(this.frame)    
+    this.raf = requestAnimationFrame(this.frame)
   }
 
-  onMouseMove = ({clientX: x1, clientY: y1, movementX: dx, movementY: dy}) =>
-    this.wireframe(require('bunny'), Math.random() * 0.2, 8)
+  onMouseMove = ({clientX: x1, clientY: y1, movementX: dx, movementY: dy}) =>{}
+    // this.pointframe(require('bunny'), 0, 8)
     // this.draw([x1, y1, 10], 8, 32)
 
   render() {
     return <div>
              <canvas ref={this.init}
                      style={fullscreenBackground} />
-             {this.props.children}
            </div>
   }
 }
@@ -243,7 +247,6 @@ function initFrameBuffers(gl, dim) {
   // Create an initial state of zeroes
   fill(initialStateNd, (x, y, ch) => 0) //ch > 2 ? 1 : (Math.random() - 0.5) * 800.6125)
 
-  
   // Upload initial state.
   nextStateFb.color[0].setPixels(initialStateNd)
   prevStateFb.color[0].setPixels(initialStateNd)
@@ -253,9 +256,9 @@ function initFrameBuffers(gl, dim) {
   fill(behaviorNd, (x, y, ch) => {
     switch (ch) {
       case 0: return 0
-      case 1: return 0
-      case 2: return 3
-      case 3: return 3
+      case 1: return 10
+      case 2: return 10
+      case 3: return 0
     }
   })
 
@@ -328,9 +331,10 @@ function drawParticles(gl, {shader, particlesVa, uniforms, dimension}) {
 
   // Additive blending!
   gl.enable(gl.BLEND)
+  // gl.enable(gl.DEPTH_TEST)
   gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA)
   // gl.blendFunc(gl.ONE, gl.ONE)
+  // gl.drawArrays(gl.TRIANGLES, 0, dimension * dimension)
   gl.drawArrays(gl.POINTS, 0, dimension * dimension)
-  // gl.drawArrays(gl.POINTS, 0, 512 * 512)
   gl.disable(gl.BLEND)
 }
