@@ -9,10 +9,12 @@ import ndarray from 'ndarray'
 import fill    from 'ndarray-fill'
 
 import React from 'react'
+import PropTypes from 'prop-types'
 
 import shaders from './shaders'
 
-export default class extends React.Component {
+
+class Vapor extends React.Component {
   componentDidMount() {
     window.addEventListener('resize', this.resize)
     window.addEventListener('mousemove', this.onMouseMove)
@@ -42,9 +44,13 @@ export default class extends React.Component {
     this.behaviorDirty = false
   }
 
-  draw(pageXY, turbulence, count=1) {
-    while (--count >= 0)
+  draw = (pageXY, turbulence, count=1, skipProbability=0.2) => {
+    while (--count >= 0) {
+      if (skipProbability && Math.random() < skipProbability) {
+        ++count; continue
+      }
       this.write(this.shaderXYFromPage(pageXY), turbulence)
+    }
   }
 
   uOffset = [0, 0]
@@ -54,8 +60,14 @@ export default class extends React.Component {
   }
 
   uTargetOffset = [0, 0]
-  setTargetOffset(targetOffset) {
+  setTargetOffset = targetOffset => {
     this.uTargetOffset = this.shaderXYFromPage(targetOffset)
+    return this
+  }
+
+  uGravity = 0
+  setGravity = g => {
+    this.uGravity = g
     return this
   }
 
@@ -112,8 +124,8 @@ export default class extends React.Component {
       
       uTime=0,
       uOffset=[0,0],
+      uGravity=0,
     } = this
-    const {gravity: uGravity=0} = this.props
 
     this.updateBehavior()
 
@@ -157,9 +169,9 @@ export default class extends React.Component {
     this.raf = requestAnimationFrame(this.frame)    
   }
 
-  onMouseMove = ({clientX: x1, clientY: y1, movementX: dx, movementY: dy}) =>
-    // this.draw([x1, y1], [8, 8], 32)
-    this.setTargetOffset([x1, y1])
+  // onMouseMove = ({clientX: x1, clientY: y1, movementX: dx, movementY: dy}) =>
+  //   // this.draw([x1, y1], [8, 8], 32)
+  //   this.setTargetOffset([x1, y1])
 
   render() {
     return <div>
@@ -168,7 +180,23 @@ export default class extends React.Component {
             {this.props.children}
            </div>
   }
+
+  getChildContext() {
+    return {
+      draw: this.draw,
+      setTargetOffset: this.setTargetOffset,
+      setGravity: this.setGravity,
+    }
+  }
 }
+
+Vapor.childContextTypes = {
+  draw: PropTypes.func,
+  setTargetOffset: PropTypes.func,
+  setGravity: PropTypes.func,
+}
+
+export default Vapor
 
 const fullscreenBackground = {
   position: 'fixed',

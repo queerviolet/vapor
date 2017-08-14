@@ -68,11 +68,13 @@ class Voice extends React.Component {
 
   get tx() { return this.context.transport }
 
-  play = (note, duration, velocity) => time =>
+  play = (note, duration, velocity, onPlay=() => {}) => time => (
+    onPlay(time),
     this.synth.triggerAttackRelease(note, duration, time, velocity)
+  )
 
-  schedule = (note, time, duration, velocity) =>
-    this.tx.schedule(this.play(note, duration, velocity), time)
+  schedule = (note, time, duration, velocity, onPlay) =>
+    this.tx.schedule(this.play(note, duration, velocity, onPlay), time)
 
   clear = id => this.tx.clear(id)    
 
@@ -106,9 +108,9 @@ class Note extends React.Component {
     eventId && this.context.clear(eventId)
   }
 
-  loadProps({note, time, duration, velocity}) {
+  loadProps({note, time, duration, velocity, onPlay}) {
     this.context.clear(this.eventId)
-    this.eventId = this.context.schedule(note, time, duration, velocity)
+    this.eventId = this.context.schedule(note, time, duration, velocity, onPlay)
   }
 
   render() { return null }
@@ -134,14 +136,14 @@ export default class extends React.Component {
         <Transport bpm={200} isPlaying={isPlaying} loop={true} loopEnd='2m'>
           <table style={{margin: 'auto'}}> {
             notes.map(note =>
-              <tr>
+              <tr key={note}>
                 <Voice resonance={0.9}> {                
                   new Array(measures).fill('x').map((_, m) =>
                     [0, 1, 2, 3].map(beat => {
                       const time = `${m}:${beat}`
                           , key = `${note}@${time}`
                       return <td key={key}>
-                        <Sample note={note} time={time} duration='8n' baseRef={fireRef}/>
+                        <Sample beat={beat} note={note} time={time} duration='8n' baseRef={fireRef}/>
                       </td>
                     })
                   )
@@ -154,6 +156,8 @@ export default class extends React.Component {
     )
   }
 }
+
+import Vapor from '../Vapor'
 
 class Sample extends React.Component {
   state = {value: false}
@@ -174,9 +178,9 @@ class Sample extends React.Component {
 
   get style() {
     return {
-      background: this.state.playing ? 'fuchsia'
-        : this.state.value ? 'deeppink' : 'lightgray',
-      opacity: 0.8,
+      background: this.state.playing ? 'rgba(255, 0, 255, 0.6)'
+        : this.state.value ? 'rgba(255, 20, 147, 0.4)' : 'none',
+      border: '1px solid deeppink',
       width: '100px',
       height: '100px',
       margin: 'auto',
@@ -185,15 +189,25 @@ class Sample extends React.Component {
   }
 
   onPlay = () => {
-    this.state.set({playing: true})
-    setTimeout(() => this.state.set({playing: false}), 113)
+    this.setState({playing: true})
+    const box = this.refs.me.getBoundingClientRect()
+        , centerXY = [box.left + box.width / 2,
+                      box.top + box.height / 2]
+        , {beat=0} = this.props
+    this.context.draw(centerXY, [8, 8], 512)
+    this.context.draw(centerXY, [24, 24], 1024)
+    // this.context.setTargetOffset(centerXY)
+    // this.context.setGravity(beat % 2 === 0 ? 1 : -1)
+    setTimeout(() => this.setState({playing: false}), 113)
   }
 
   render() {
     const {value=false} = this.state
         , {note, time, duration} = this.props
-    return <div style={this.style} onClick={this.onClick}>
+    return <div style={this.style} onClick={this.onClick} ref='me'>
       {value ? <Note note={note} onPlay={this.onPlay} duration={duration} time={time}/> : null}
     </div>
   }
 }
+
+Sample.contextTypes = Vapor.childContextTypes
