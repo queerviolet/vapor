@@ -2,6 +2,7 @@ import React from 'react'
 import {render} from 'react-dom'
 import {AppContainer} from 'react-hot-loader'
 
+import bunny from 'bunny'
 import {line, offsetXY} from './geom'
 import particles from './demo'
 
@@ -25,7 +26,8 @@ particles.then(particles => {
   const update = updateWithParticles(particles)
   window.addEventListener('scroll',
     () => req = req || requestAnimationFrame(update))
-  update()    
+  update()
+  particles.model(bunny)
 })
 
 const visibleAt = Symbol()
@@ -39,7 +41,8 @@ const updateWithParticles = particles => {
     const {innerWidth: wWidth,
            innerHeight: wHeight,
            scrollX, scrollY} = window
-    particles.scroll(scrollX, scrollY)
+    particles.scroll(scrollX, scrollY)    
+    return
 
     const visible = Array
        .from(document.querySelectorAll('.particle-target'))

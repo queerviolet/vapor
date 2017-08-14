@@ -25,6 +25,7 @@ let uOffset = [0, 0]
 var t = 0
 var shell = createShell({
   clearColor: [1,1,1,1],
+  preventDefaults: false,
 })
 
 shell.on('gl-init', init)
@@ -32,7 +33,7 @@ shell.on('gl-render', render)
 
 let didInit
 module.exports = new Promise(resolve => didInit = resolve)
-    .then(() => ({reset, groups, group, scroll}))
+    .then(() => ({reset, model, groups, group, scroll}))
 
 function scroll(x, y) {
   uOffset = [2 * x, 1.8 * y]
@@ -45,6 +46,17 @@ function updateParticles() {
   console.log('updating particles')
   behaviorFbo.color[0].setPixels(behaviorNd)  
   particleBehaviorHasChanged = false
+}
+
+function model({positions}, turbulence) {
+  const buf = behaviorNd.data
+  let i = Math.min(positions.length, 512); while (--i) {
+    buf[4 * i + 0] = 200 * positions[i][0]
+    buf[4 * i + 1] = 200 * positions[i][1]
+    buf[4 * i + 2] = turbulence
+    buf[4 * i + 3] = turbulence
+  }
+  particleBehaviorHasChanged = true
 }
 
 function groups() {
@@ -117,13 +129,15 @@ function init() {
   document.body.style.overflow = 'auto'
 
   var gl = shell.gl
-
+  console.log(gl.getSupportedExtensions())
+  console.log('ext:', gl.getExtension('EXT_color_buffer_float'))
   shaders = require('./shaders')(gl)
 
   nextState = createFBO(gl, 512, 512, { 'float': true })
   prevState = createFBO(gl, 512, 512, { 'float': true })
   behaviorFbo = createFBO(gl, 512, 512, { 'float': true })
   behaviorNd = ndarray(new Float32Array(512 * 512 * 4), [512, 512, 4])
+  window.behaviorNd = behaviorNd
   fill(behaviorNd, (x, y, ch) => {
     switch (ch) {
       case 0: return 0
@@ -133,18 +147,6 @@ function init() {
     }
   })
   behaviorFbo.color[0].setPixels(behaviorNd)
-  // console.log(gl.getSupportedExtensions)
-  // console.log('OES_texture_float:', gl.getExtension('OES_texture_float'))
-  // targetBuf = ndarray(new Float32Array(512 * 512 * 4), [512, 512, 4])
-  // targetTex = createTexture(gl, [512, 512], gl.RGBA, gl.FLOAT)
-  // fill(targetBuf, (x, y, ch) => {
-  //   switch (ch) {
-  //     case 0: return 0   // target.x
-  //     case 1: return 0   // target.y
-  //     case 2: return 12  // turbulence
-  //   }
-  //   return 0
-  // })
   
   var initialState = ndarray(new Float32Array(512 * 512 * 4), [512, 512, 4])
   fill(initialState, function(x, y, ch) {
