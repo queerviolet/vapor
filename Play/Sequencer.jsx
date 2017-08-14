@@ -116,46 +116,7 @@ class Note extends React.Component {
 Note.contextTypes = Voice.childContextTypes
 
 export default class extends React.Component {
-  componentDidMount() {
-    // When the component mounts, start listening to the fireRef
-    // we were given.
-    this.listenTo(this.props.fireRef)
-  }
-
-  componentWillUnmount() {
-    // When we unmount, stop listening.
-    this.unsubscribe()
-  }
-
-  componentWillReceiveProps(incoming, outgoing) {
-    // When the props sent to us by our parent component change,
-    // start listening to the new firebase reference.
-    this.listenTo(incoming.fireRef)
-  }
-
-  listenTo(fireRef) {
-    // If we're already listening to a ref, stop listening there.
-    if (this.unsubscribe) this.unsubscribe()
-
-    // Whenever our ref's value changes, set {value} on our state.
-    const listener = fireRef.on('value', snapshot =>
-      this.setState({value: snapshot.val()}))
-
-    // Set unsubscribe to be a function that detaches the listener.
-    this.unsubscribe = () => fireRef.off('value', listener)
-  }
-
-  // Write is defined using the class property syntax.
-  // This is roughly equivalent to saying,
-  //
-  //    this.write = event => (etc...)
-  //
-  // in the constructor. Incidentally, this means that write
-  // is always bound to this.
-  write = event => this.props.fireRef &&
-    this.props.fireRef.set(event.target.value)
-
-  state = {isPlaying: true, value: ''}
+  state = {isPlaying: false, value: ''}
 
   togglePlaying = evt => this.setState({isPlaying: evt.target.checked})
 
@@ -213,7 +174,9 @@ class Sample extends React.Component {
 
   get style() {
     return {
-      background: this.state.value ? 'fuchsia' : 'lightgray',
+      background: this.state.playing ? 'fuchsia'
+        : this.state.value ? 'deeppink' : 'lightgray',
+      opacity: 0.8,
       width: '100px',
       height: '100px',
       margin: 'auto',
@@ -221,11 +184,16 @@ class Sample extends React.Component {
     }
   }
 
+  onPlay = () => {
+    this.state.set({playing: true})
+    setTimeout(() => this.state.set({playing: false}), 113)
+  }
+
   render() {
     const {value=false} = this.state
         , {note, time, duration} = this.props
     return <div style={this.style} onClick={this.onClick}>
-      {value ? <Note note={note} duration={duration} time={time}/> : null}
+      {value ? <Note note={note} onPlay={this.onPlay} duration={duration} time={time}/> : null}
     </div>
   }
 }
