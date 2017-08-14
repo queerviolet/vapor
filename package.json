@@ -46,6 +46,7 @@
     "gl-buffer": "^2.1.2",
     "gl-context": "^0.1.1",
     "gl-fbo": "^2.0.5",
+    "gl-movable-camera": "^1.0.1",
     "gl-now": "1.4.0",
     "gl-shader": "4.2.1",
     "gl-texture2d": "^2.1.0",

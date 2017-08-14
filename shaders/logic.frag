@@ -71,6 +71,6 @@ void main() {
   // nextPosition = target;
 
   vec2 velocity = springForce + attraction;
-  gl_FragColor = vec4(vec3(nextPosition, velocity.x), velocity.y);
+  gl_FragColor = vec4(vec3(nextPosition, 100), 1.0);
   // gl_FragColor = vec4(gl_FragCoord.xy, 1.0, 1.0);
 }

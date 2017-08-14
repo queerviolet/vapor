@@ -5,6 +5,7 @@ import createVAO     from 'gl-vao'
 import createTexture from 'gl-texture2d'
 import pip           from 'gl-texture2d-pip'
 
+import mat4    from 'gl-mat4'
 import ndarray from 'ndarray'
 import fill    from 'ndarray-fill'
 
@@ -36,6 +37,12 @@ export default class extends React.Component {
     this.behaviorDirty = true
   }
 
+  model({positions}, turbulence) {
+    // let i = positions.length; while (--i >= 0) {
+    //   write()
+    // }
+  }
+
   updateBehavior() {
     if (!this.behaviorDirty) return
     this.behaviorFb.color[0].setPixels(this.behaviorNd)
@@ -48,7 +55,7 @@ export default class extends React.Component {
   }
 
   resize = () => {
-    const {canvas} = this
+    const {canvas, uProjection} = this
     if (!canvas) return
     const {width, height} = this.canvas.getBoundingClientRect()
     this.width = width
@@ -59,7 +66,17 @@ export default class extends React.Component {
       this.shaderXYFromPage = ([x, y]) => [
         width * (-1 + 2 * (x / width)),
         height * (1 - 2 * (y / height))
-      ]      
+      ]
+      console.log(`mat4.perspective(${uProjection},
+        ${Math.PI / 4},
+        ${width / height}, 0.01, 1000`)
+      
+      mat4.perspective(uProjection,
+        Math.PI / 4,
+        width / height,
+        0.01, 1000)
+      console.log(uProjection)
+        // [0, 0, -1], [0, 0, 0], [0, 1, 0])
     }
   }
 
@@ -72,7 +89,7 @@ export default class extends React.Component {
     return this.dimension * this.dimension
   }
 
-  canvasDidMount = canvas => {
+  init = canvas => {
     const {dimension} = this
     const gl = this.gl = canvas.getContext('webgl')
     this.canvas = canvas
@@ -82,6 +99,10 @@ export default class extends React.Component {
       initFrameBuffers(gl, dimension),
       initVertexBuffers(gl, dimension))
     
+    this.uProjection = mat4.create()
+    this.uView = mat4.create()
+    mat4.lookAt(this.uView, [0, 0, 0], [0, 0, 1000], [0, 100, 0])
+
     this.resize()
     this.frame()
   }
@@ -129,6 +150,8 @@ export default class extends React.Component {
       uniforms: {
         uState: nextStateFb.color[0].bind(0),
         uScreen: [width, height],
+        uProjection: this.uProjection,
+        uView: this.uView,
         uOffset: [2 * window.scrollX, 2 * window.scrollY]
       }
     })
@@ -149,7 +172,7 @@ export default class extends React.Component {
 
   render() {
     return <div>
-             <canvas ref={this.canvasDidMount}
+             <canvas ref={this.init}
                      style={fullscreenBackground} />
              {this.props.children}
            </div>
@@ -192,8 +215,8 @@ function initFrameBuffers(gl, dim) {
     switch (ch) {
       case 0: return 0
       case 1: return 0
-      case 2: return 12
-      case 3: return 12
+      case 2: return 3
+      case 3: return 3
     }
   })
 

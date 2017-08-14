@@ -19,11 +19,13 @@ b.plugin(livereload, {
 })
 
 b.on('update', bundle);
+b.on('error', console.error);
 bundle();
 
 function bundle() {
   console.log('compiling bundle.js')
   b.bundle().pipe(fs.createWriteStream('bundle.js'))
     .on('finish', () => console.log('wrote bundle.js'))
+    .on('error', console.error)
 }
 
