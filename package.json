@@ -43,6 +43,7 @@
     "bunny": "^1.0.1",
     "cssify": "^1.0.3",
     "errorify": "^0.3.1",
+    "firebase": "^4.2.0",
     "gl-buffer": "^2.1.2",
     "gl-context": "^0.1.1",
     "gl-fbo": "^2.0.5",
@@ -54,6 +55,7 @@
     "gl2-now": "^1.4.2",
     "glsl-noise": "0.0.0",
     "highlight.js": "^9.12.0",
+    "immutable": "^3.8.1",
     "marked": "^0.3.6",
     "ndarray": "^1.0.18",
     "ndarray-fill": "^1.0.2",
@@ -62,6 +64,7 @@
     "react-hot-loader": "^3.0.0-beta.7",
     "react-lowlight": "^1.1.1",
     "rehype": "^5.0.0",
+    "tone": "^0.10.0",
     "void-elements": "^3.1.0",
     "watchify": "^3.9.0",
     "zeros": "^1.0.0"

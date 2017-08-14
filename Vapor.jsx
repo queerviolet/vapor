@@ -165,6 +165,7 @@ export default class extends React.Component {
     return <div>
              <canvas ref={this.canvasDidMount}
                      style={fullscreenBackground} />
+            {this.props.children}
            </div>
   }
 }
