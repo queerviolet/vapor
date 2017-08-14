@@ -1,10 +1,10 @@
-import React from 'react'
-import {render} from 'react-dom'
+import React          from 'react'
+import {render}       from 'react-dom'
 import {AppContainer} from 'react-hot-loader'
 
-import bunny from 'bunny'
+import bunny            from 'bunny'
 import {line, offsetXY} from './geom'
-import particles from './demo'
+// import particles        from './demo'
 
 const main = document.createElement('div')
 document.body.appendChild(main)
@@ -22,13 +22,13 @@ document.body.appendChild(main)
 //   })
 
 let req = null
-particles.then(particles => {
-  const update = updateWithParticles(particles)
-  window.addEventListener('scroll',
-    () => req = req || requestAnimationFrame(update))
-  update()
-  particles.model(bunny)
-})
+// particles.then(particles => {
+//   const update = updateWithParticles(particles)
+//   window.addEventListener('scroll',
+//     () => req = req || requestAnimationFrame(update))
+//   update()
+//   particles.model(bunny)
+// })
 
 const visibleAt = Symbol()
 const isTracking = Symbol()
@@ -124,39 +124,42 @@ import AboutWebGL from './talk/webgl.kubo'
 import Target from './Target'
 import Shape from './Shape'
 import Slide from './Slide'
+import Vapor from './Vapor'
 
 render(
   <AppContainer>
     <App>
-      <Target style={{margin: 'auto'}}/>
-      <Whoami />
-      <Target target={line([0, 0], [500, 0])} turbulence={5}
-        style={{margin: 'auto', width: 500}}/>
-      <AboutReact />
-      <Shape
-        style={{width: '50%', margin: 'auto'}}
-        points={[
-          [0, 0],
-          [200, 0],
-          [200, 200],
-          [0, 200],
-          [0, 0],
-        ]} 
-        turbulence={8} />
-      <AboutReact />
-      <Slide>
-        <Shape points={[
-          [250, 150],
-          [375, 0],        
-          [500, 100],
-          [250, 500],
-          [0, 100],
-          [125, 0],
-          [250, 150],
-        ]} style={{
-          margin: 'auto',
-          width: '500px',
-          height: '500px'}} turbulence={8} /> 
-      </Slide>
+      <Vapor>
+        <Target style={{margin: 'auto'}}/>
+        <Whoami />
+        <Target target={line([0, 0], [500, 0])} turbulence={5}
+          style={{margin: 'auto', width: 500}}/>
+        <AboutReact />
+        <Shape
+          style={{width: '50%', margin: 'auto'}}
+          points={[
+            [0, 0],
+            [200, 0],
+            [200, 200],
+            [0, 200],
+            [0, 0],
+          ]} 
+          turbulence={8} />
+        <AboutReact />
+        <Slide>
+          <Shape points={[
+            [250, 150],
+            [375, 0],        
+            [500, 100],
+            [250, 500],
+            [0, 100],
+            [125, 0],
+            [250, 150],
+          ]} style={{
+            margin: 'auto',
+            width: '500px',
+            height: '500px'}} turbulence={8} /> 
+        </Slide>
+      </Vapor>
     </App>
   </AppContainer>, main)
