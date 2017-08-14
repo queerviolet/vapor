@@ -52,6 +52,7 @@
     "gl-texture2d": "^2.1.0",
     "gl-texture2d-pip": "^1.0.0",
     "gl-vao": "^0.0.3",
+    "gl-vec3": "^1.0.3",
     "gl2-now": "^1.4.2",
     "glsl-noise": "0.0.0",
     "highlight.js": "^9.12.0",

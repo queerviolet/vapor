@@ -5,6 +5,7 @@ import createVAO     from 'gl-vao'
 import createTexture from 'gl-texture2d'
 import pip           from 'gl-texture2d-pip'
 
+import vec3    from 'gl-vec3'
 import mat4    from 'gl-mat4'
 import ndarray from 'ndarray'
 import fill    from 'ndarray-fill'
@@ -27,20 +28,39 @@ export default class extends React.Component {
 
   behaviorDirty = false
   writeIndex = 0
-  write([targetX, targetY], [turbulenceX, turbulenceY],
+  write([targetX, targetY, targetZ=10], turbulence=0,
+        scale = 1.0,
         i=this.writeIndex = (this.writeIndex + 1) % this.numParticles) {
     const {data} = this.behaviorNd
-    data[4 * i + 0] = targetX
-    data[4 * i + 1] = targetY
-    data[4 * i + 2] = turbulenceX
-    data[4 * i + 3] = turbulenceY
+    data[4 * i + 0] = targetX * scale
+    data[4 * i + 1] = targetY * scale
+    data[4 * i + 2] = targetZ * scale
+    data[4 * i + 3] = turbulence
     this.behaviorDirty = true
   }
 
-  model({positions}, turbulence) {
-    // let i = positions.length; while (--i >= 0) {
-    //   write()
-    // }
+  model({positions}, turbulence, scale) {
+    let i = positions.length; while (--i >= 0) {
+      this.write(positions[i], turbulence, scale)
+    }
+  }
+
+  wireframe({positions, cells}, turbulence, scale, strokeCount=4) {
+    let i = cells.length; while (--i >= 0) {      
+      const [v0, v1, v2] = cells[i]
+          , a = positions[v0]
+          , b = positions[v1]
+          , c = positions[v2]
+      // this.line(a, b, strokeCount, turbulence, scale)
+      // this.line(b, c, strokeCount, turbulence, scale)
+      // this.line(a, c, strokeCount, turbulence, scale)
+      this.write(a, turbulence, scale)
+      this.write(b, turbulence, scale)
+      this.write(b, turbulence, scale)
+      this.write(c, turbulence, scale)
+      this.write(a, turbulence, scale)
+      this.write(c, turbulence, scale)
+    }
   }
 
   updateBehavior() {
@@ -49,7 +69,23 @@ export default class extends React.Component {
     this.behaviorDirty = false
   }
 
-  draw(pageXY, turbulence, count=1) {
+  line = (() => {
+    const delta = vec3.create()
+        , step = vec3.create()
+        , v = vec3.create()
+    return (from, to, count, turb, scale, numStrokes=1) => {
+      vec3.subtract(delta, to, from)
+      vec3.scale(step, delta, 1 / count)
+      vec3.copy(v, from)
+      while (--numStrokes >= 0)  
+        for (let t = 0; t <= 1; t += step) {
+          this.write(v, turb, scale)
+          vec3.add(v, v, step)
+        }
+    }
+  })()
+
+  drawXY(pageXY, turbulence, count=1) {
     while (--count >= 0)
       this.write(this.shaderXYFromPage(pageXY), turbulence)
   }
@@ -104,6 +140,8 @@ export default class extends React.Component {
     mat4.lookAt(this.uView, [0, 0, 0], [0, 0, 1000], [0, 100, 0])
 
     this.resize()
+    
+    this.wireframe(require('bunny'), 0, 8)
     this.frame()
   }
 
@@ -168,7 +206,8 @@ export default class extends React.Component {
   }
 
   onMouseMove = ({clientX: x1, clientY: y1, movementX: dx, movementY: dy}) =>
-    this.draw([x1, y1], [8, 8], 32)
+    this.wireframe(require('bunny'), Math.random() * 0.2, 8)
+    // this.draw([x1, y1, 10], 8, 32)
 
   render() {
     return <div>
