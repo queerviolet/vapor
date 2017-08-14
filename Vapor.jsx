@@ -47,6 +47,18 @@ export default class extends React.Component {
       this.write(this.shaderXYFromPage(pageXY), turbulence)
   }
 
+  uOffset = [0, 0]
+  setOffset(uOffset) {
+    this.uOffset = uOffset
+    return this
+  }
+
+  uTargetOffset = [0, 0]
+  setTargetOffset(targetOffset) {
+    this.uTargetOffset = this.shaderXYFromPage(targetOffset)
+    return this
+  }
+
   resize = () => {
     const {canvas} = this
     if (!canvas) return
@@ -112,6 +124,7 @@ export default class extends React.Component {
       uniforms: {
         uState: prevStateFb.color[0].bind(0),
         uTarget: behaviorFb.color[0].bind(1),
+        uTargetOffset: this.uTargetOffset,
         uGravity,
         uTime
       }
@@ -129,7 +142,7 @@ export default class extends React.Component {
       uniforms: {
         uState: nextStateFb.color[0].bind(0),
         uScreen: [width, height],
-        uOffset: [2 * window.scrollX, 2 * window.scrollY]
+        uOffset: this.uOffset,
       }
     })
 
@@ -145,13 +158,13 @@ export default class extends React.Component {
   }
 
   onMouseMove = ({clientX: x1, clientY: y1, movementX: dx, movementY: dy}) =>
-    this.draw([x1, y1], [8, 8], 32)
+    // this.draw([x1, y1], [8, 8], 32)
+    this.setTargetOffset([x1, y1])
 
   render() {
     return <div>
              <canvas ref={this.canvasDidMount}
                      style={fullscreenBackground} />
-             {this.props.children}
            </div>
   }
 }

@@ -9,13 +9,14 @@ uniform sampler2D uState;
 uniform sampler2D uTarget;
 uniform float uTime;
 uniform float uGravity;
+uniform vec2 uTargetOffset;
 
 const vec3 OFFSET = vec3(2399.24849823098, 3299.9028381, 389.09338327);
 
 void main() {
   vec4 sampled = texture2D(uState, gl_FragCoord.xy / vec2(512.0)).rgba;
   vec4 targetParams = texture2D(uTarget, gl_FragCoord.xy / vec2(512.0)); 
-  vec2 target = targetParams.xy;
+  vec2 target = targetParams.xy + uTargetOffset;
   vec2 turbulence = targetParams.zw;
   // vec2 target = vec2(0.0, 0.0);
 
