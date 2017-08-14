@@ -140,8 +140,8 @@ function init() {
   window.behaviorNd = behaviorNd
   fill(behaviorNd, (x, y, ch) => {
     switch (ch) {
-      case 0: return 0
-      case 1: return 0
+      case 0: return Math.random() * 823
+      case 1: return Math.random() * 847
       case 2: return 12
       case 3: return 12
     }

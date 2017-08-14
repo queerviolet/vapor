@@ -15,11 +15,36 @@ import shaders from './shaders'
 export default class extends React.Component {
   componentDidMount() {
     window.addEventListener('resize', this.resize)
+    window.addEventListener('mousemove', this.onMouseMove)
   }
 
   componentWillUnmount() {
     cancelAnimationFrame(this.raf)
     window.removeEventListener('resize', this.resize)    
+    window.removeEventListener('mousemove', this.onMouseMove)
+  }
+
+  behaviorDirty = false
+  writeIndex = 0
+  write([targetX, targetY], [turbulenceX, turbulenceY],
+        i=this.writeIndex = (this.writeIndex + 1) % this.numParticles) {
+    const {data} = this.behaviorNd
+    data[4 * i + 0] = targetX
+    data[4 * i + 1] = targetY
+    data[4 * i + 2] = turbulenceX
+    data[4 * i + 3] = turbulenceY
+    this.behaviorDirty = true
+  }
+
+  updateBehavior() {
+    if (!this.behaviorDirty) return
+    this.behaviorFb.color[0].setPixels(this.behaviorNd)
+    this.behaviorDirty = false
+  }
+
+  draw(pageXY, turbulence, count=1) {
+    while (--count >= 0)
+      this.write(this.shaderXYFromPage(pageXY), turbulence)
   }
 
   resize = () => {
@@ -31,12 +56,20 @@ export default class extends React.Component {
     if (width !== canvas.width || height !== canvas.height) {
       canvas.width = width
       canvas.height = height
+      this.shaderXYFromPage = ([x, y]) => [
+        width * (-1 + 2 * (x / width)),
+        height * (1 - 2 * (y / height))
+      ]      
     }
   }
 
   get dimension() {
     const {size=9} = this.props
     return 2 ** size
+  }
+
+  get numParticles() {
+    return this.dimension * this.dimension
   }
 
   canvasDidMount = canvas => {
@@ -53,7 +86,7 @@ export default class extends React.Component {
     this.frame()
   }
 
-  frame = ts => {
+  frame = ts => {   
     const {
       gl,
       shaders,
@@ -69,6 +102,8 @@ export default class extends React.Component {
       uOffset=[0,0],
     } = this
     const {gravity: uGravity=0} = this.props
+
+    this.updateBehavior()
 
     computeState(gl, nextStateFb, {
       shader: shaders.logic,
@@ -105,8 +140,12 @@ export default class extends React.Component {
     this.nextStateFb = prevStateFb    
     this.prevStateFb = nextStateFb
 
-    this.raf = requestAnimationFrame(this.frame)
+    this.uTime = uTime + 1
+    this.raf = requestAnimationFrame(this.frame)    
   }
+
+  onMouseMove = ({clientX: x1, clientY: y1, movementX: dx, movementY: dy}) =>
+    this.draw([x1, y1], [8, 8], 32)
 
   render() {
     return <div>
@@ -140,7 +179,8 @@ function initFrameBuffers(gl, dim) {
       , behaviorNd = stateNd(dim)
 
   // Create an initial state of zeroes
-  fill(initialStateNd, () => 0)
+  fill(initialStateNd, (x, y, ch) => 0) //ch > 2 ? 1 : (Math.random() - 0.5) * 800.6125)
+
   
   // Upload initial state.
   nextStateFb.color[0].setPixels(initialStateNd)
@@ -149,12 +189,12 @@ function initFrameBuffers(gl, dim) {
   // Behavior encodes [target(x, y), turbulence(x, y)]
   // for all particles.
   fill(behaviorNd, (x, y, ch) => {
-      switch (ch) {
-        case 0: return 0   // target.x
-        case 1: return 0   // target.y
-        case 2: return 12  // turbulence.x
-        case 3: return 12  // turbulence.y
-      }
+    switch (ch) {
+      case 0: return 0
+      case 1: return 0
+      case 2: return 12
+      case 3: return 12
+    }
   })
 
   // Upload initial behavior.

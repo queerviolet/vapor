@@ -11,7 +11,6 @@ uniform float uTime;
 uniform float uGravity;
 
 const vec3 OFFSET = vec3(2399.24849823098, 3299.9028381, 389.09338327);
-const float SPEED = 16.0;
 
 void main() {
   vec4 sampled = texture2D(uState, gl_FragCoord.xy / vec2(512.0)).rgba;
