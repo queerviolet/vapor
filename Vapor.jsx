@@ -86,7 +86,7 @@ export default class extends React.Component {
     gl.bindFramebuffer(gl.FRAMEBUFFER, null)
     gl.disable(gl.DEPTH_TEST)
     gl.viewport(0, 0, width, height)
-    console.log(width, height)
+    
     drawParticles(gl, {
       shader: shaders.render,
       particlesVa,
@@ -94,10 +94,11 @@ export default class extends React.Component {
       uniforms: {
         uState: nextStateFb.color[0].bind(0),
         uScreen: [width, height],
-        uOffset
+        uOffset: [2 * window.scrollX, 2 * window.scrollY]
       }
     })
 
+    // Draw previews of our states
     pip([prevStateFb.color[0], nextStateFb.color[0]])
 
     // Swap prev and next states
